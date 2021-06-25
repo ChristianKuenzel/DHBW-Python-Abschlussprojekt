@@ -1,6 +1,6 @@
 # Copyright 2021
 # DHBW Lörrach, Python Projekt: Lernbox/Merkbox
-# Christian Künzel, matr.Nr.: 3889521, <chriskuenzel@web.de>, https://github.com/ChristianKuenzel
+# Christian Künzel, Matr.Nr.: 3889521, <chriskuenzel@web.de>, https://github.com/ChristianKuenzel
 #
 # Content undergoes the terms of chosen licenses. See GitHub for more:
 # https://github.com/ChristianKuenzel/...
@@ -41,14 +41,14 @@ class Application(object):
         self.box_menu.add_command(label="Create new", command=self.create_box_window)
         self.box_menu.add_command(label="Load")
         self.box_menu.add_command(label="Search")
-        self.box_menu.add_command(label="Delete")
+        self.box_menu.add_command(label="Remove", command=self.remove_box_window)
         self.menu_bar.add_cascade(label="Box", menu=self.box_menu)
 
         # Card menu
         self.card_menu = Menu(self.menu_bar, tearoff=0)
         self.card_menu.add_command(label="Create new", command=self.create_card_window)
         self.card_menu.add_command(label="Search")
-        self.card_menu.add_checkbutton(label="Delete")
+        self.card_menu.add_checkbutton(label="Remove")
         self.menu_bar.add_cascade(label="Card", menu=self.card_menu)
 
         # Options menu
@@ -101,7 +101,7 @@ class Application(object):
 
         # Buttons.
         # Create a new box
-        create_box_bt = Button(master=box_window, text="Create", command=self.create_box(box_name_if))
+        create_box_bt = Button(master=box_window, text="Create", command=lambda: self.create_new_box(box_name_if))
         create_box_bt.pack()
 
         # Cancel box creation
@@ -141,7 +141,8 @@ class Application(object):
 
         # Buttons.
         # Create a new card.
-        create_card_bt = Button(master=card_window, text="Create", command=self.create_card(card_name_if, card_question_if, card_solution_if))
+        create_card_bt = Button(master=card_window, text="Create",
+                                command=self.create_card(card_name_if, card_question_if, card_solution_if))
         create_card_bt.pack()
 
         # Cancel box creation
@@ -164,33 +165,50 @@ class Application(object):
 
         # Buttons.
         # Delete all data.
-        clear_storage_bt = Button(master=reset_window, text="Delete", command=self.reset_and_close_application_window)
+        clear_storage_bt = Button(master=reset_window, text="Delete", command=self.shutdown_application_window)
         clear_storage_bt.pack()
 
         # Abort process.
         abort_process_bt = Button(master=reset_window, text="Abort", command=self.test3)
         abort_process_bt.pack()
 
+    # Create a new top level window containing all inputs for box creation.
+    def remove_box_window(self):
+        # New window
+        box_window = Toplevel(self.root)
+        box_window.title("Delete box")
+        box_window.geometry("400x600")
+
+        # Labels.
+        # Introduction
+        task = Label(master=box_window, text="Insert the boxs name below and click on Delete:")
+        task.pack()
+
+        # Input fields.
+        # Name of a box.
+        box_name_if = StringVar()
+        box_name_if.set("Enter box name ...")
+        remove_box_if = Entry(master=box_window, textvariable=box_name_if)
+        remove_box_if.pack()
+
+        # Buttons.
+        # Create a new box
+        remove_box_bt = Button(master=box_window, text="Remove", command=lambda: remove_box_from_storage(self, box_name_if))
+        remove_box_bt.pack()
+
+        # Cancel box creation
+        cancel_task_bt = Button(master=box_window, text="Cancel", command=self.test2)
+        cancel_task_bt.pack()
+
     # Reset storage and close application.
-    def reset_and_close_application_window(self):
+    def shutdown_application_window(self):
         # Close old reset window.
         # reset_window.quit()
         # reset_window.destroy()
 
-        # New window.
-        close_application = Toplevel(self.root)
-        close_application.title("Program shutdown")
-        close_application.geometry("400x100")
-
-        # Labels.
-        # User Information
-        info_msg = Label(master=close_application, text="The application will be closed in the process.")
-        info_msg.pack()
-
-        # Buttons.
-        # Delete all data.
-        clear_storage_bt = Button(master=close_application, text="Close", command=self.reset_and_close_application)
-        clear_storage_bt.pack()
+        # Create shut down window.
+        self.pop_up_info_window("Program shutdown", "400x100", "The application will be shut down in the process.",
+                                "Close", self.reset_and_close_application)
 
     def reset_and_close_application(self):
         reset_storage()
@@ -229,7 +247,7 @@ class Application(object):
         self.root.destroy()"""
 
     # Create a new box and add itself to storage
-    def create_box(self, box_name):
+    def create_new_box(self, box_name):
         # Create the box object itself.
         box = Box()
 
@@ -237,39 +255,23 @@ class Application(object):
         box.name = box_name.get()
 
         # Store the box.
-        add_box_to_storage(box.name, box)
+        add_box_to_storage(self, box.name, box.__dict__)
 
-        # Check if item got stored correctly.
-        lob = get_item_convert_json_to_py("list_of_boxes")
-        if lob[box.name] is not None:
-            self.pop_up_info_window("400x100", "Creating box successfully!")
-
-        else:
-            # Failure
-            self.pop_up_info_window("400x100", "WARNING: Creating box failed!")
-
-    def pop_up_info_window(self, resolution, msg):
+    def pop_up_info_window(self, title, resolution, text_msg, text_button, cmd):
         # New window.
         info_wd = Toplevel(self.root)
-        info_wd.title("Info Message")
+        info_wd.title(title)
         info_wd.geometry(resolution)
 
         # Labels.
         # User Information
-        info_wd_msg = Label(master=info_wd, text=msg)
+        info_wd_msg = Label(master=info_wd, text=text_msg)
         info_wd_msg.pack()
 
         # Buttons.
         # Delete all data.
-        confirm_bt = Button(master=info_wd, text="Ok", command=self.test)#, command=info_wd.destroy()
+        confirm_bt = Button(master=info_wd, text=text_button, command=cmd) # command=info_wd.destroy()
         confirm_bt.pack()
-
-
-    """
-    def open_box(self):
-        # Load box from storage
-        return localStorage.getItem(self.box_name_if.get())
-    """
 
     # Create a new card and add itself into a box.
     def create_card(self, card_name, card_question, card_solution):
@@ -282,8 +284,7 @@ class Application(object):
         card.solution = card_solution.get()
 
         # Store the card
-        #localStorage.setItem(card.name, card)
-        #box speichern
+        #
 
     def next_card(self):
         return
@@ -331,11 +332,11 @@ class Card(object):
 class Box(object):
     def __init__(self):
         self.name = "default"
-        self.card_list = []
+        self.card_dict = dict()
         self.amount_of_cards = 0
 
     def amount_of_cards(self):
-        self.amount_of_cards = len(self.card_list)
+        self.amount_of_cards = len(self.card_dict)
         return self.amount_of_cards
 
 
@@ -344,22 +345,55 @@ class Box(object):
 # Add new item to storage system by get, add and set.
 # List of boxes need to be updated and overwritten.
 # Object need to be stored by its name.
-def add_box_to_storage(item_name, item):
+def add_box_to_storage(app_obj, item_name, item):
     # Get list of boxes as dictionary.
     lob = get_item_convert_json_to_py("list_of_boxes")
-    # Add key-value pair.
-    lob[item_name] = item
-    # Set dictionary into storage.
-    localStorage.setItem("list_of_boxes", lob)
+
+    # Check if item already exists.
+    if item_name in lob:
+        app_obj.pop_up_info_window("Item already exists!", "400x100",
+                                   "The box you are trying to create already exists.", "Ok", app_obj.test)
+
+    else:
+        # Add key-value pair.
+        lob[item_name] = item
+
+        # Set dictionary into storage.
+        set_item_convert_py_to_json("list_of_boxes", lob)
+
+        # Check if item got stored correctly.
+        new_lob = get_item_convert_json_to_py("list_of_boxes")
+        if item_name in new_lob:
+            app_obj.pop_up_info_window("Info Message", "400x100", "Creating box successfully!", "Ok", app_obj.test)
+
+        else:
+            # Failure
+            app_obj.pop_up_info_window("Info Message", "400x100", "WARNING: Creating box failed!", "Ok", app_obj.test2)
 
 
 # Remove box item by item name and update list of boxes.
-def remove_box_from_storage(item_name):
+def remove_box_from_storage(app_obj, item_name):
     # Get list of boxes as dictionary
+    item_name = item_name.get()
     lob = get_item_convert_json_to_py("list_of_boxes")
-    # Delete item in dictionary. Dictionary mutates.
-    del lob[item_name]
-    set_item_convert_py_to_json("list_of_boxes", lob)
+
+    if item_name in lob:
+        # Delete item in dictionary. Dictionary mutates.
+        del lob[item_name]
+        set_item_convert_py_to_json("list_of_boxes", lob)
+
+        # Check if item got deleted correctly.
+        new_lob = get_item_convert_json_to_py("list_of_boxes")
+        if item_name not in new_lob:
+            app_obj.pop_up_info_window("Info Message", "400x100", "Deleting box successfully!", "Ok", app_obj.test)
+
+        else:
+            # Failure
+            app_obj.pop_up_info_window("Info Message", "400x100", "WARNING: Deleting box failed!", "Ok", app_obj.test2)
+
+    else:
+        app_obj.pop_up_info_window("Item doesnt exist!", "400x100",
+                                   "The item you are trying to delete doesnt exist.", "Ok", app_obj.test)
 
 
 # Empty the whole storage. All data will be lost.
@@ -385,12 +419,11 @@ if __name__ == '__main__':
     # Initialize storage.
     localStorage = localStoragePy("python.merkbox", "sqlite")
 
-    print(localStorage.getItem("list_of_boxes"))
     # Check if list of all boxes exists, otherwise create new dict.
     if localStorage.getItem("list_of_boxes") is None:
         set_item_convert_py_to_json("list_of_boxes", dict())
 
-    print(localStorage.getItem("list_of_boxes"))
-
     # Run application.
     app = Application()
+
+    print(localStorage.getItem("list_of_boxes"))
