@@ -105,7 +105,7 @@ class Application(object):
         create_box_bt.pack()
 
         # Cancel box creation
-        cancel_task_bt = Button(master=box_window, text="Cancel", command=self.test2)
+        cancel_task_bt = Button(master=box_window, text="Cancel", command=lambda: self.cancel_window(box_window))
         cancel_task_bt.pack()
 
     # Create a new top level window containing all inputs for card creation.
@@ -146,7 +146,7 @@ class Application(object):
         create_card_bt.pack()
 
         # Cancel box creation
-        cancel_task_bt = Button(master=card_window, text="Cancel", command=self.test3)
+        cancel_task_bt = Button(master=card_window, text="Cancel", command=lambda: self.cancel_window(card_window))
         cancel_task_bt.pack()
 
     # Safety warning before resetting the storage. All data will be lost.
@@ -154,7 +154,7 @@ class Application(object):
         # New window.
         reset_window = Toplevel(self.root)
         reset_window.title("WARNING: Data loss!")
-        reset_window.geometry("400x100")
+        reset_window.geometry("400x120")
 
         # Labels.
         # Warning message
@@ -162,14 +162,16 @@ class Application(object):
         warning_msg.pack()
         warning2_msg = Label(master=reset_window, text="You wont be able to restore any data after this process.")
         warning2_msg.pack()
+        warning3_msg = Label(master=reset_window, text="The application will be shut down in the process.")
+        warning3_msg.pack()
 
         # Buttons.
         # Delete all data.
-        clear_storage_bt = Button(master=reset_window, text="Delete", command=self.shutdown_application_window)
+        clear_storage_bt = Button(master=reset_window, text="Delete", command=self.reset_storage)
         clear_storage_bt.pack()
 
         # Abort process.
-        abort_process_bt = Button(master=reset_window, text="Abort", command=self.test3)
+        abort_process_bt = Button(master=reset_window, text="Abort", command=lambda: self.cancel_window(reset_window))
         abort_process_bt.pack()
 
     # Create a new top level window containing all inputs for box creation.
@@ -197,37 +199,26 @@ class Application(object):
         remove_box_bt.pack()
 
         # Cancel box creation
-        cancel_task_bt = Button(master=box_window, text="Cancel", command=self.test2)
+        cancel_task_bt = Button(master=box_window, text="Cancel", command=lambda: self.cancel_window(box_window))
         cancel_task_bt.pack()
 
     # Reset storage and close application.
-    def shutdown_application_window(self):
-        # Close old reset window.
-        # reset_window.quit()
-        # reset_window.destroy()
-
-        # Create shut down window.
-        self.pop_up_info_window("Program shutdown", "400x100", "The application will be shut down in the process.",
-                                "Close", self.reset_and_close_application)
-
-    def reset_and_close_application(self):
-        reset_storage()
+    def reset_storage(self):
+        localStorage.clear()
         self.root.quit()
         self.root.destroy()
 
-
-    """
     # Close the window by cancel button
     def cancel_window(self, window):
         try:
-            window.quit()
             window.destroy()
 
         except:
             # Error response.
-            error_msg = "We are sorry to inform you canceling caused an error."
+            error_msg = "We are sorry to inform you 'Cancel' caused an error."
             self.error_occured("400x80", error_msg)
 
+    # Error window. Closing application.
     def error_occured(self, resolution, error_msg):
         # Create error window
         error_cancel_window = Toplevel(self.root)
@@ -239,12 +230,8 @@ class Application(object):
         error_msg_lb.pack()
 
         # Close application
-        close_application_bt = Button(master=error_cancel_window, text="Close Application", command=self.close_application)
+        close_application_bt = Button(master=error_cancel_window, text="Close Application", command=lambda: [self.root.destroy(), self.root.quit()])
         close_application_bt.pack()
-
-    def close_application(self):
-        self.root.quit()
-        self.root.destroy()"""
 
     # Create a new box and add itself to storage
     def create_new_box(self, box_name):
@@ -394,11 +381,6 @@ def remove_box_from_storage(app_obj, item_name):
     else:
         app_obj.pop_up_info_window("Item doesnt exist!", "400x100",
                                    "The item you are trying to delete doesnt exist.", "Ok", app_obj.test)
-
-
-# Empty the whole storage. All data will be lost.
-def reset_storage():
-    localStorage.clear()
 
 
 # ______________________________________________________________________________________________________________________
