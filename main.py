@@ -18,8 +18,8 @@ import json
 class Application(object):
     def __init__(self):
         # Active objects.
-        self.active_box = Box()
-        self.active_card = Card()
+        self.active_box = Box().__dict__
+        self.active_card = Card().__dict__
 
         # Create Window
         self.root = Tk()
@@ -67,6 +67,9 @@ class Application(object):
                                  text="Learning with training cards!", bg='#d1bc8a', fg="black", height=3)
         self.headline_lb.pack()
 
+        self.visualize_card_lb = Label(master=self.root, text="Content")
+        self.visualize_card_lb.pack()
+
         # OptionsMenu
         # Turn dict keys into list
         self.box_option_list = list(get_item_convert_json_to_py("list_of_boxes").keys())
@@ -75,6 +78,7 @@ class Application(object):
         self.select_box_om = OptionMenu(self.root, self.select_box, *self.box_option_list)
         self.select_box_om.config(width=20, font=('helvetica', 12))
         self.select_box_om.pack()
+        self.select_box.trace("w", self.load_box_cb)
 
         # Buttons
         self.skipQuestion_bt = Button(master=self.root, text="Skip", command=self.skip_question)
@@ -82,6 +86,16 @@ class Application(object):
 
         self.test_bt = Button(master=self.root, text="test", command=self.test)
         self.test_bt.pack()
+
+        self.card_num = IntVar()
+        self.card_num.set(0)
+        self.start_exercise_bt = Button(master=self.root, text="Start",
+                                        command=lambda: self.start_exercise(self.active_box))
+        self.start_exercise_bt.pack()
+
+        self.next_card_bt = Button(master=self.root, text="Next",
+                                   command=lambda: self.next_card(self.active_box))
+        self.next_card_bt.pack()
 
         # Input field
         # User response to the given question.
@@ -155,16 +169,19 @@ class Application(object):
         # Buttons.
         # Create a new card.
         create_card_bt = Button(master=card_window, text="Create",
-                                command=self.create_card(card_name_if, card_question_if, card_solution_if))
+                                command=lambda: self.create_new_card(card_name_if, card_question_if, card_solution_if))
         create_card_bt.pack()
 
         # Cancel box creation
         cancel_task_bt = Button(master=card_window, text="Cancel", command=lambda: self.cancel_window(card_window))
         cancel_task_bt.pack()
 
-    # Load box for active usage.
-    def load_box(self):
-        return
+    # Callback function. Load box for active usage.
+    def load_box_cb(self, *args):
+        # Get list of boxes.
+        lob = get_item_convert_json_to_py("list_of_boxes")
+        # Change active box to chosen box.
+        self.active_box = lob[self.select_box.get()]
 
     # Safety warning before resetting the storage. All data will be lost.
     def reset_window(self):
@@ -280,7 +297,7 @@ class Application(object):
         confirm_bt.pack()
 
     # Create a new card and add itself into a box.
-    def create_card(self, card_name, card_question, card_solution):
+    def create_new_card(self, card_name, card_question, card_solution):
         # Create the card object itself
         card = Card()
 
@@ -290,10 +307,16 @@ class Application(object):
         card.solution = card_solution.get()
 
         # Store the card
-        #
+        add_card_to_storage(self, card.name, card.__dict__)
 
-    def next_card(self):
-        return
+    def start_exercise(self, box):
+        #a = box.card_dict[0]
+        self.visualize_card_lb.configure(text=box["card_dict"])
+
+    def next_card(self, box):
+        #self.card_num += 1
+        #a = box.card_dict[self.card_num]
+        self.visualize_card_lb.configure(text=box["amount_of_cards"])
 
     def skip_question(self):
         return
@@ -402,6 +425,32 @@ def remove_box_from_storage(app_obj, item_name):
                                    "The item you are trying to delete doesnt exist.", "Ok", app_obj.test)
 
 
+def add_card_to_storage(app_obj, item_name, item):
+    # Get list of cards as dictionary.
+    loc = get_item_convert_json_to_py("list_of_cards")
+
+    # Check if item already exists.
+    if item_name in loc:
+        app_obj.pop_up_info_window("Item already exists!", "400x100",
+                                   "The card you are trying to create already exists.", "Ok", app_obj.test)
+
+    else:
+        # Add key-value pair.
+        loc[item_name] = item
+
+        # Set dictionary into storage.
+        set_item_convert_py_to_json("list_of_cards", loc)
+
+        # Check if item got stored correctly.
+        new_loc = get_item_convert_json_to_py("list_of_cards")
+        if item_name in new_loc:
+            app_obj.pop_up_info_window("Info Message", "400x100", "Creating card successfully!", "Ok", app_obj.test)
+
+        else:
+            # Failure
+            app_obj.pop_up_info_window("Info Message", "400x100", "WARNING: Creating card failed!", "Ok", app_obj.test2)
+
+
 # ______________________________________________________________________________________________________________________
 # JSON converter functions. Get/Set with localStorage included.
 # Get any item from storage and convert it from json to py.
@@ -424,9 +473,14 @@ if __name__ == '__main__':
     if localStorage.getItem("list_of_boxes") is None:
         set_item_convert_py_to_json("list_of_boxes", dict())
 
+    # Check if list of all cards exists, otherwise create new dict.
+    if localStorage.getItem("list_of_cards") is None:
+        set_item_convert_py_to_json("list_of_cards", dict())
+
     # Run application.
     app = Application()
 
     print(localStorage.getItem("list_of_boxes"))
-    print(app.active_box.__dict__)
-    print(app.active_card.__dict__)
+    print(localStorage.getItem("list_of_cards"))
+    print(app.active_box)
+    print(app.active_card)
