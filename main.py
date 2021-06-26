@@ -67,8 +67,14 @@ class Application(object):
                                  text="Learning with training cards!", bg='#d1bc8a', fg="black", height=3)
         self.headline_lb.pack()
 
-        self.visualize_card_lb = Label(master=self.root, text="Content")
-        self.visualize_card_lb.pack()
+        self.visualize_card_name_lb = Label(master=self.root, text="Name")
+        self.visualize_card_name_lb.pack()
+
+        self.visualize_card_question_lb = Label(master=self.root, text="Question")
+        self.visualize_card_question_lb.pack()
+
+        self.visualize_card_solution_lb = Label(master=self.root, text="Solution")
+        self.visualize_card_solution_lb.pack()
 
         # OptionsMenu
         # Turn dict keys into list
@@ -87,8 +93,9 @@ class Application(object):
         self.test_bt = Button(master=self.root, text="test", command=self.test)
         self.test_bt.pack()
 
-        self.card_num = IntVar()
-        self.card_num.set(0)
+        #self.card_num = IntVar()
+        #self.card_num.set(0)
+        self.card_num = 0
         self.start_exercise_bt = Button(master=self.root, text="Start",
                                         command=lambda: self.start_exercise(self.active_box))
         self.start_exercise_bt.pack()
@@ -309,14 +316,67 @@ class Application(object):
         # Store the card
         add_card_to_storage(self, card.name, card.__dict__)
 
+    # Start visualizing cards if available.
     def start_exercise(self, box):
-        #a = box.card_dict[0]
-        self.visualize_card_lb.configure(text=box["card_dict"])
+        # Check if enough cards exist to start.
+        # Hint: len(list(element1)) starts with 1 and list(element1) starts with pos. 0. (-> '>' instead of '>=')
+        if len(list(box["card_dict"].items())) == 0:
+            # As boxes can have a lot of cards i don't wanna iterate over the dict.
+            # But to get the cards content by index instead of key-value i need to change the dict.
+            # List cast gives me the possibility to use card_num as index, but messes up the  dicts within:
+            # self.visualize_card_lb.configure(text=list(box["card_dict"].items())[0].question) -> Doesnt exist
+            # self.visualize_card_lb.configure(text=list(box["card_dict"].items())[0][0][4]) -> Gives a letter ('s')
+            # So i will call the card_dict, list cast its keys to grab the card_num-nth cards content by index.
+            self.visualize_card_name_lb.configure(
+                text="Empty")
+            self.visualize_card_question_lb.configure(
+                text="Empty")
 
+        elif len(list(box["card_dict"].items())) > 0:
+            # As boxes can have a lot of cards i don't wanna iterate over the dict.
+            # But to get the cards content by index instead of key-value i need to change the dict.
+            # List cast gives me the possibility to use card_num as index, but messes up the  dicts within:
+            # self.visualize_card_lb.configure(text=list(box["card_dict"].items())[0].question) -> Doesnt exist
+            # self.visualize_card_lb.configure(text=list(box["card_dict"].items())[0][0][4]) -> Gives a letter ('s')
+            # So i will call the card_dict, list cast its keys to grab the card_num-nth cards content by index.
+            self.visualize_card_name_lb.configure(text=box["card_dict"][list(box["card_dict"].keys())[0]]["name"])
+            self.visualize_card_question_lb.configure(
+                text=box["card_dict"][list(box["card_dict"].keys())[0]]["question"])
+
+        else:
+            self.test()
+
+    # Visualize next card if available.
     def next_card(self, box):
-        #self.card_num += 1
-        #a = box.card_dict[self.card_num]
-        self.visualize_card_lb.configure(text=box["amount_of_cards"])
+        # Check if enough cards exist to continue. Precalculate before increasing the card number value. (-> +1)
+        # Hint: len(list(element1)) starts with 1 and list(element1) starts with pos. 0. (-> '>' instead of '>=')
+        if len(list(box["card_dict"].items())) == 0:
+            # As boxes can have a lot of cards i don't wanna iterate over the dict.
+            # But to get the cards content by index instead of key-value i need to change the dict.
+            # List cast gives me the possibility to use card_num as index, but messes up the  dicts within:
+            # self.visualize_card_lb.configure(text=list(box["card_dict"].items())[0].question) -> Doesnt exist
+            # self.visualize_card_lb.configure(text=list(box["card_dict"].items())[0][0][4]) -> Gives a letter ('s')
+            # So i will call the card_dict, list cast its keys to grab the card_num-nth cards content by index.
+            self.visualize_card_name_lb.configure(
+                text="Empty")
+            self.visualize_card_question_lb.configure(
+                text="Empty")
+
+        elif len(list(box["card_dict"].items())) > self.card_num + 1:
+            self.card_num += 1
+            # As boxes can have a lot of cards i don't wanna iterate over the dict.
+            # But to get the cards content by index instead of key-value i need to change the dict.
+            # List cast gives me the possibility to use card_num as index, but messes up the  dicts within:
+            # self.visualize_card_lb.configure(text=list(box["card_dict"].items())[0].question) -> Doesnt exist
+            # self.visualize_card_lb.configure(text=list(box["card_dict"].items())[0][0][4]) -> Gives a letter ('s')
+            # So i will call the card_dict, list cast its keys to grab the card_num-nth cards content by index.
+            self.visualize_card_name_lb.configure(
+                text=box["card_dict"][list(box["card_dict"].keys())[self.card_num]]["name"])
+            self.visualize_card_question_lb.configure(
+                text=box["card_dict"][list(box["card_dict"].keys())[self.card_num]]["question"])
+
+        else:
+            self.test()
 
     def skip_question(self):
         return
