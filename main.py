@@ -43,7 +43,6 @@ class Application(object):
         # Box menu
         self.box_menu = Menu(self.menu_bar, tearoff=0)
         self.box_menu.add_command(label="Create new", command=self.create_box_window)
-        self.box_menu.add_command(label="Load")
         self.box_menu.add_command(label="Search")
         self.box_menu.add_command(label="Remove", command=self.remove_box_window)
         self.menu_bar.add_cascade(label="Box", menu=self.box_menu)
@@ -51,6 +50,7 @@ class Application(object):
         # Card menu
         self.card_menu = Menu(self.menu_bar, tearoff=0)
         self.card_menu.add_command(label="Create new", command=self.create_card_window)
+        self.card_menu.add_command(label="Add to box", command=self.add_card_to_box_window)
         self.card_menu.add_command(label="Search")
         self.card_menu.add_checkbutton(label="Remove")
         self.menu_bar.add_cascade(label="Card", menu=self.card_menu)
@@ -280,7 +280,7 @@ class Application(object):
         # Store the box.
         add_box_to_storage(self, box.name, box.__dict__)
 
-    def pop_up_info_window(self, title, resolution, text_msg, text_button, cmd):
+    def pop_up_info_window(self, title, resolution, text_msg, text_button):
         # New window.
         info_wd = Toplevel(self.root)
         info_wd.title(title)
@@ -293,7 +293,7 @@ class Application(object):
 
         # Buttons.
         # Delete all data.
-        confirm_bt = Button(master=info_wd, text=text_button, command=cmd) # command=info_wd.destroy()
+        confirm_bt = Button(master=info_wd, text=text_button, command=lambda: info_wd.destroy())
         confirm_bt.pack()
 
     # Create a new card and add itself into a box.
@@ -332,6 +332,42 @@ class Application(object):
 
     def test3(self):
         print("test3")
+
+    def add_card_to_box_window(self):
+        # New window
+        add_card_to_box_window = Toplevel(self.root)
+        add_card_to_box_window.title("Add card to box")
+        add_card_to_box_window.geometry("400x600")
+
+        # Labels.
+        # Introduction.
+        task = Label(master=add_card_to_box_window, text="Insert the boxs name, the card's name you wanna"
+                                                         " add to it and click on 'Add' below:")
+        task.pack()
+
+        # Input fields.
+        # Name of a box.
+        box_name_if = StringVar()
+        box_name_if.set("Enter box name ...")
+        get_box_name_if = Entry(master=add_card_to_box_window, textvariable=box_name_if)
+        get_box_name_if.pack()
+
+        # Input fields.
+        # Name of a box.
+        card_name_if = StringVar()
+        card_name_if.set("Enter card name ...")
+        get_card_name_if = Entry(master=add_card_to_box_window, textvariable=card_name_if)
+        get_card_name_if.pack()
+
+        # Buttons.
+        # Add card to box.
+        add_card_to_box_bt = Button(master=add_card_to_box_window, text="Add",
+                                    command=lambda: add_card_to_box(self, box_name_if, card_name_if))
+        add_card_to_box_bt.pack()
+
+        # Cancel box creation
+        cancel_task_bt = Button(master=add_card_to_box_window, text="Cancel", command=lambda: self.cancel_window(add_card_to_box_window))
+        cancel_task_bt.pack()
 
 
 # Vocabulary Card containing question, solution, tier and attempts.
@@ -381,7 +417,7 @@ def add_box_to_storage(app_obj, item_name, item):
     # Check if item already exists.
     if item_name in lob:
         app_obj.pop_up_info_window("Item already exists!", "400x100",
-                                   "The box you are trying to create already exists.", "Ok", app_obj.test)
+                                   "The box you are trying to create already exists.", "Ok")
 
     else:
         # Add key-value pair.
@@ -393,11 +429,11 @@ def add_box_to_storage(app_obj, item_name, item):
         # Check if item got stored correctly.
         new_lob = get_item_convert_json_to_py("list_of_boxes")
         if item_name in new_lob:
-            app_obj.pop_up_info_window("Info Message", "400x100", "Creating box successfully!", "Ok", app_obj.test)
+            app_obj.pop_up_info_window("Info Message", "400x100", "Creating box successfully!", "Ok")
 
         else:
             # Failure
-            app_obj.pop_up_info_window("Info Message", "400x100", "WARNING: Creating box failed!", "Ok", app_obj.test2)
+            app_obj.pop_up_info_window("Info Message", "400x100", "WARNING: Creating box failed!", "Ok")
 
 
 # Remove box item by item name and update list of boxes.
@@ -414,15 +450,15 @@ def remove_box_from_storage(app_obj, item_name):
         # Check if item got deleted correctly.
         new_lob = get_item_convert_json_to_py("list_of_boxes")
         if item_name not in new_lob:
-            app_obj.pop_up_info_window("Info Message", "400x100", "Deleting box successfully!", "Ok", app_obj.test)
+            app_obj.pop_up_info_window("Info Message", "400x100", "Deleting box successfully!", "Ok")
 
         else:
             # Failure
-            app_obj.pop_up_info_window("Info Message", "400x100", "WARNING: Deleting box failed!", "Ok", app_obj.test2)
+            app_obj.pop_up_info_window("Info Message", "400x100", "WARNING: Deleting box failed!", "Ok")
 
     else:
         app_obj.pop_up_info_window("Item doesnt exist!", "400x100",
-                                   "The item you are trying to delete doesnt exist.", "Ok", app_obj.test)
+                                   "The item you are trying to delete doesnt exist.", "Ok")
 
 
 def add_card_to_storage(app_obj, item_name, item):
@@ -432,7 +468,7 @@ def add_card_to_storage(app_obj, item_name, item):
     # Check if item already exists.
     if item_name in loc:
         app_obj.pop_up_info_window("Item already exists!", "400x100",
-                                   "The card you are trying to create already exists.", "Ok", app_obj.test)
+                                   "The card you are trying to create already exists.", "Ok")
 
     else:
         # Add key-value pair.
@@ -444,11 +480,44 @@ def add_card_to_storage(app_obj, item_name, item):
         # Check if item got stored correctly.
         new_loc = get_item_convert_json_to_py("list_of_cards")
         if item_name in new_loc:
-            app_obj.pop_up_info_window("Info Message", "400x100", "Creating card successfully!", "Ok", app_obj.test)
+            app_obj.pop_up_info_window("Info Message", "400x100", "Creating card successfully!", "Ok")
 
         else:
             # Failure
-            app_obj.pop_up_info_window("Info Message", "400x100", "WARNING: Creating card failed!", "Ok", app_obj.test2)
+            app_obj.pop_up_info_window("Info Message", "400x100", "WARNING: Creating card failed!", "Ok")
+
+
+def add_card_to_box(app_obj, box_name, card_name):
+    # Get values from input field.
+    box_name = box_name.get()
+    card_name = card_name.get()
+
+    # Get list of boxes as dictionary.
+    lob = get_item_convert_json_to_py("list_of_boxes")
+    # Get list of cards as dictionary.
+    loc = get_item_convert_json_to_py("list_of_cards")
+
+    # Check if box and card exists.
+    # Adding card twice will update the value.
+    if box_name in lob and card_name in loc:
+        # Add card values to card-dict of the box.
+        lob[box_name]["card_dict"][card_name] = loc[card_name]
+
+        # Set new values.
+        set_item_convert_py_to_json("list_of_boxes", lob)
+
+        # Check if card got stored correctly.
+        new_lob = get_item_convert_json_to_py("list_of_boxes")
+        if card_name in new_lob[box_name]["card_dict"]:
+            app_obj.pop_up_info_window("Info Message", "400x100", "Adding card successfully!", "Ok")
+
+        else:
+            # Failure
+            app_obj.pop_up_info_window("Info Message", "400x100", "WARNING: Adding card failed!", "Ok")
+
+    else:
+        app_obj.pop_up_info_window("Box or card doesnt exist!", "400x100",
+                                   "The box/card you are trying to trying to use doesnt exist.", "Ok")
 
 
 # ______________________________________________________________________________________________________________________
