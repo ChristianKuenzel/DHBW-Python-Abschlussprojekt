@@ -12,11 +12,15 @@ from localStoragePy import localStoragePy
 import json
 
 
-# # ______________________________________________________________________________________________________________________
+# ______________________________________________________________________________________________________________________
 # Classes
 # Graphical User Interface
 class Application(object):
     def __init__(self):
+        # Active objects.
+        self.active_box = Box()
+        self.active_card = Card()
+
         # Create Window
         self.root = Tk()
         self.root.title('Training cards')
@@ -62,6 +66,15 @@ class Application(object):
         self.headline_lb = Label(master=self.headline_fm, font=("Courier", 28),
                                  text="Learning with training cards!", bg='#d1bc8a', fg="black", height=3)
         self.headline_lb.pack()
+
+        # OptionsMenu
+        # Turn dict keys into list
+        self.box_option_list = list(get_item_convert_json_to_py("list_of_boxes").keys())
+        self.select_box = StringVar()
+        self.select_box.set(self.box_option_list[0])
+        self.select_box_om = OptionMenu(self.root, self.select_box, *self.box_option_list)
+        self.select_box_om.config(width=20, font=('helvetica', 12))
+        self.select_box_om.pack()
 
         # Buttons
         self.skipQuestion_bt = Button(master=self.root, text="Skip", command=self.skip_question)
@@ -149,6 +162,10 @@ class Application(object):
         cancel_task_bt = Button(master=card_window, text="Cancel", command=lambda: self.cancel_window(card_window))
         cancel_task_bt.pack()
 
+    # Load box for active usage.
+    def load_box(self):
+        return
+
     # Safety warning before resetting the storage. All data will be lost.
     def reset_window(self):
         # New window.
@@ -195,7 +212,8 @@ class Application(object):
 
         # Buttons.
         # Create a new box
-        remove_box_bt = Button(master=box_window, text="Remove", command=lambda: remove_box_from_storage(self, box_name_if))
+        remove_box_bt = Button(master=box_window, text="Remove",
+                               command=lambda: remove_box_from_storage(self, box_name_if))
         remove_box_bt.pack()
 
         # Cancel box creation
@@ -230,7 +248,8 @@ class Application(object):
         error_msg_lb.pack()
 
         # Close application
-        close_application_bt = Button(master=error_cancel_window, text="Close Application", command=lambda: [self.root.destroy(), self.root.quit()])
+        close_application_bt = Button(master=error_cancel_window, text="Close Application",
+                                      command=lambda: [self.root.destroy(), self.root.quit()])
         close_application_bt.pack()
 
     # Create a new box and add itself to storage
@@ -395,7 +414,7 @@ def set_item_convert_py_to_json(item_name, item):
     localStorage.setItem(item_name, json.dumps(item))
 
 
-# # ______________________________________________________________________________________________________________________
+# ______________________________________________________________________________________________________________________
 # Main
 if __name__ == '__main__':
     # Initialize storage.
@@ -409,3 +428,5 @@ if __name__ == '__main__':
     app = Application()
 
     print(localStorage.getItem("list_of_boxes"))
+    print(app.active_box.__dict__)
+    print(app.active_card.__dict__)
