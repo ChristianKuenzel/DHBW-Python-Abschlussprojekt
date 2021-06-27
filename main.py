@@ -21,99 +21,133 @@ class Application(object):
         self.active_box = Box().__dict__
         self.active_card = Card().__dict__
 
-        # Create Window
+        # Create master window.
         self.root = Tk()
         self.root.title('Training cards')
-        self.root.geometry('1280x800')
+        # Resolution: Width x Height.
+        self.root.geometry('800x1000')
 
-        # Frames
+        # Frames -> GUI structure.
+        # Master: Headline and main interaction.
         self.headline_fm = Frame(master=self.root, bg='#d1bc8a')
-        self.headline_fm.pack(side='top', fill='x')
+        self.headline_fm.place(x=0, y=0, width=800, height=95)
 
-        # self.main_fm = Frame(master=self.root, bg='red')
-        # self.main_fm.pack(side='bottom', fill='both')
+        self.main_interaction_fm = Frame(master=self.root, bg='#5e5e5e')
+        self.main_interaction_fm.place(x=150, y=120, width=500, height=600)
 
-        # self.question_fm = Frame()
-        # self.response_fm = Frame()
+        # Main interaction: Select active box and main activity
+        self.select_box_fm = Frame(master=self.main_interaction_fm, bg='#FE2E2E')
+        self.select_box_fm.place(x=0, y=0, width=500, height=60)
+
+        self.activity_fm = Frame(master=self.main_interaction_fm, bg='#AC58FA')
+        self.activity_fm.place(x=0, y=60, width=500, height=540)
+
+        # Activity: All activities beside selecting active box.
+        self.card_frame_fm = Frame(master=self.activity_fm, bg='#2EFEC8')
+        self.card_frame_fm.place(x=20, y=20, width=460, height=470)
+
+        self.button_frame_fm = Frame(master=self.activity_fm, bg='#D7DF01')
+        self.button_frame_fm.place(x=20, y=470, width=460, height=50)
+
+        # Card: Title, question, solution and user input.
+        self.card_frame_title_fm = Frame(master=self.card_frame_fm, bg='#FF00BF')
+        self.card_frame_title_fm.place(x=0, y=0, width=460, height=60)
+
+        self.card_frame_question_fm = Frame(master=self.card_frame_fm, bg='#0101DF')
+        self.card_frame_question_fm.place(x=0, y=60, width=460, height=140)
+
+        self.card_frame_solution_fm = Frame(master=self.card_frame_fm, bg='#FF8000')
+        self.card_frame_solution_fm.place(x=0, y=200, width=460, height=140)
+
+        self.card_frame_input_fm = Frame(master=self.card_frame_fm, bg='#00FF00')
+        self.card_frame_input_fm.place(x=0, y=340, width=460, height=130)
+
+        # Labels
+        # Main title of GUI
+        self.headline_lb = Label(master=self.headline_fm, font=("Courier", 28),
+                                 text="Learning with training cards!", bg='#d1bc8a', fg="black", height=3)
+        self.headline_lb.place(relx=0.5, rely=0.5, anchor=CENTER)
+
+        # Card frame title.
+        self.visualize_card_name_lb = Label(master=self.card_frame_title_fm, text="Name")
+        self.visualize_card_name_lb.place(relx=0.5, rely=0.5, width=250, height=30, anchor=CENTER)
+
+        # Cards question.
+        self.visualize_card_question_lb = Label(master=self.card_frame_question_fm, text="Question")
+        self.visualize_card_question_lb.place(relx=0.5, rely=0.5, width=300, height=100, anchor=CENTER)
+
+        # Cards solution
+        self.visualize_card_solution_lb = Label(master=self.card_frame_solution_fm, text="Solution")
+        self.visualize_card_solution_lb.place(relx=0.5, rely=0.5, width=300, height=100, anchor=CENTER)
+
+        # Input field
+        # User response to the given question.
+        self.response_if = StringVar()
+        self.response_if.set("Enter your suggestion ...")
+        self.userResponse_if = Entry(master=self.card_frame_input_fm, textvariable=self.response_if)
+        self.userResponse_if.place(relx=0.5, rely=0.5, width=200, height=40, anchor=CENTER)
+
+        # Buttons.
+        # Start the exercise by loading in the first card.
+        self.card_num = 0
+        self.start_exercise_bt = Button(master=self.button_frame_fm, text="Start",
+                                        command=lambda: self.start_exercise(self.active_box))
+        self.start_exercise_bt.place(relx=0.25, rely=0.5, width=60, height=30, anchor=CENTER)
+
+        # Skip the given question.
+        self.skipQuestion_bt = Button(master=self.button_frame_fm, text="Skip", command=self.skip_question)
+        self.skipQuestion_bt.place(relx=0.5, rely=0.5, width=60, height=30, anchor=CENTER)
+
+        # Load in the next card.
+        self.next_card_bt = Button(master=self.button_frame_fm, text="Next",
+                                   command=lambda: self.next_card(self.active_box))
+        self.next_card_bt.place(relx=0.75, rely=0.5, width=60, height=30, anchor=CENTER)
+
+        # OptionsMenu.
+        # Select box you wanna work with (as active box).
+        # Cast dict keys into list.
+        self.box_option_list = list(get_item_convert_json_to_py("list_of_boxes").keys())
+        self.select_box = StringVar()
+        self.select_box.set(self.box_option_list[0])
+        self.select_box_om = OptionMenu(self.select_box_fm, self.select_box, *self.box_option_list)
+        self.select_box_om.config(width=20, font=('helvetica', 12))
+        self.select_box_om.place(relx=0.5, rely=0.5, anchor=CENTER)
+        # Add trace and callback method.
+        self.select_box.trace("w", self.load_box_cb)
 
         # Menu.
-        # Menu bar
+        # Menu bar with various functions.
         self.menu_bar = Menu(self.root)
 
-        # Box menu
+        # Box menu: Create, remove.
         self.box_menu = Menu(self.menu_bar, tearoff=0)
         self.box_menu.add_command(label="Create new", command=self.create_box_window)
-        self.box_menu.add_command(label="Search")
+        """self.box_menu.add_command(label="Search")"""
         self.box_menu.add_command(label="Remove", command=self.remove_box_window)
         self.menu_bar.add_cascade(label="Box", menu=self.box_menu)
 
-        # Card menu
+        # Card menu: Create, Add to box, Remove.
         self.card_menu = Menu(self.menu_bar, tearoff=0)
         self.card_menu.add_command(label="Create new", command=self.create_card_window)
         self.card_menu.add_command(label="Add to box", command=self.add_card_to_box_window)
-        self.card_menu.add_command(label="Search")
+        """self.card_menu.add_command(label="Search")"""
         self.card_menu.add_checkbutton(label="Remove")
         self.menu_bar.add_cascade(label="Card", menu=self.card_menu)
 
-        # Options menu
+        # Options menu: Reset storage.
         self.options_menu = Menu(self.menu_bar, tearoff=0)
         self.options_menu.add_command(label="Reset storage", command=self.reset_window)
         self.menu_bar.add_cascade(label="Options", menu=self.options_menu)
 
         self.root.config(menu=self.menu_bar)
 
-        # Labels
-        self.headline_lb = Label(master=self.headline_fm, font=("Courier", 28),
-                                 text="Learning with training cards!", bg='#d1bc8a', fg="black", height=3)
-        self.headline_lb.pack()
+        # Developer tools:
+        """DevTools"""
 
-        self.visualize_card_name_lb = Label(master=self.root, text="Name")
-        self.visualize_card_name_lb.pack()
-
-        self.visualize_card_question_lb = Label(master=self.root, text="Question")
-        self.visualize_card_question_lb.pack()
-
-        self.visualize_card_solution_lb = Label(master=self.root, text="Solution")
-        self.visualize_card_solution_lb.pack()
-
-        # OptionsMenu
-        # Turn dict keys into list
-        self.box_option_list = list(get_item_convert_json_to_py("list_of_boxes").keys())
-        self.select_box = StringVar()
-        self.select_box.set(self.box_option_list[0])
-        self.select_box_om = OptionMenu(self.root, self.select_box, *self.box_option_list)
-        self.select_box_om.config(width=20, font=('helvetica', 12))
-        self.select_box_om.pack()
-        self.select_box.trace("w", self.load_box_cb)
-
-        # Buttons
-        self.skipQuestion_bt = Button(master=self.root, text="Skip", command=self.skip_question)
-        self.skipQuestion_bt.pack()
-
-        self.test_bt = Button(master=self.root, text="test", command=self.test)
-        self.test_bt.pack()
-
-        #self.card_num = IntVar()
-        #self.card_num.set(0)
-        self.card_num = 0
-        self.start_exercise_bt = Button(master=self.root, text="Start",
-                                        command=lambda: self.start_exercise(self.active_box))
-        self.start_exercise_bt.pack()
-
-        self.next_card_bt = Button(master=self.root, text="Next",
-                                   command=lambda: self.next_card(self.active_box))
-        self.next_card_bt.pack()
-
-        # Input field
-        # User response to the given question.
-        self.response_if = StringVar()
-        self.response_if.set("Enter your suggestion ...")
-        self.userResponse_if = Entry(master=self.root, textvariable=self.response_if)
-        self.userResponse_if.pack()
-
-        # Start WindowManager.
+        # Update widgets and keep the application running.
         self.root.mainloop()
 
+    # Functions.
     # Create a new top level window containing all inputs for box creation.
     def create_box_window(self):
         # New window
@@ -339,9 +373,12 @@ class Application(object):
             # self.visualize_card_lb.configure(text=list(box["card_dict"].items())[0].question) -> Doesnt exist
             # self.visualize_card_lb.configure(text=list(box["card_dict"].items())[0][0][4]) -> Gives a letter ('s')
             # So i will call the card_dict, list cast its keys to grab the card_num-nth cards content by index.
-            self.visualize_card_name_lb.configure(text=box["card_dict"][list(box["card_dict"].keys())[0]]["name"])
+            # Reset card_num to zero.
+            self.card_num = 0
+            self.visualize_card_name_lb.configure(
+                text=box["card_dict"][list(box["card_dict"].keys())[self.card_num]]["name"])
             self.visualize_card_question_lb.configure(
-                text=box["card_dict"][list(box["card_dict"].keys())[0]]["question"])
+                text=box["card_dict"][list(box["card_dict"].keys())[self.card_num]]["question"])
 
         else:
             self.test()
@@ -378,9 +415,11 @@ class Application(object):
         else:
             self.test()
 
+    # Skip current question without comparing to solution.
     def skip_question(self):
         return
 
+    # Return number of cards a box contains.
     def number_of_cards(self):
         return
 
@@ -393,6 +432,7 @@ class Application(object):
     def test3(self):
         print("test3")
 
+    #
     def add_card_to_box_window(self):
         # New window
         add_card_to_box_window = Toplevel(self.root)
@@ -521,6 +561,7 @@ def remove_box_from_storage(app_obj, item_name):
                                    "The item you are trying to delete doesnt exist.", "Ok")
 
 
+# Add new card to storage -> see add_box_to_storage fore more info.
 def add_card_to_storage(app_obj, item_name, item):
     # Get list of cards as dictionary.
     loc = get_item_convert_json_to_py("list_of_cards")
@@ -547,6 +588,7 @@ def add_card_to_storage(app_obj, item_name, item):
             app_obj.pop_up_info_window("Info Message", "400x100", "WARNING: Creating card failed!", "Ok")
 
 
+# Add a card to a box card-dictionary.
 def add_card_to_box(app_obj, box_name, card_name):
     # Get values from input field.
     box_name = box_name.get()
