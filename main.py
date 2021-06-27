@@ -47,7 +47,7 @@ class Application(object):
         self.card_frame_fm.place(x=20, y=20, width=460, height=470)
 
         self.button_frame_fm = Frame(master=self.activity_fm, bg='#D7DF01')
-        self.button_frame_fm.place(x=20, y=470, width=460, height=50)
+        self.button_frame_fm.place(x=20, y=490, width=460, height=50)
 
         # Card: Title, question, solution and user input.
         self.card_frame_title_fm = Frame(master=self.card_frame_fm, bg='#FF00BF')
@@ -102,6 +102,11 @@ class Application(object):
         self.next_card_bt = Button(master=self.button_frame_fm, text="Next",
                                    command=lambda: self.next_card(self.active_box))
         self.next_card_bt.place(relx=0.75, rely=0.5, width=60, height=30, anchor=CENTER)
+
+        # Compare the user input/suggestion and the cards solution.
+        self.check_result_bt = Button(master=self.card_frame_input_fm, text="Check",
+                                      command=lambda: self.check_result(self.active_box, self.response_if))
+        self.check_result_bt.place(relx=0.85, rely=0.5, width=60, height=30, anchor=CENTER)
 
         # OptionsMenu.
         # Select box you wanna work with (as active box).
@@ -284,7 +289,7 @@ class Application(object):
         self.root.quit()
         self.root.destroy()
 
-    # Close the window by cancel button
+    # Close the window by cancel button.
     def cancel_window(self, window):
         try:
             window.destroy()
@@ -292,13 +297,13 @@ class Application(object):
         except:
             # Error response.
             error_msg = "We are sorry to inform you 'Cancel' caused an error."
-            self.error_occured("400x80", error_msg)
+            self.error_occurred("400x80", error_msg)
 
     # Error window. Closing application.
-    def error_occured(self, resolution, error_msg):
+    def error_occurred(self, resolution, error_msg):
         # Create error window
         error_cancel_window = Toplevel(self.root)
-        error_cancel_window.title("Error occured!")
+        error_cancel_window.title("Error occurred!")
         error_cancel_window.geometry(resolution)
 
         # Print Message
@@ -361,10 +366,9 @@ class Application(object):
             # self.visualize_card_lb.configure(text=list(box["card_dict"].items())[0].question) -> Doesnt exist
             # self.visualize_card_lb.configure(text=list(box["card_dict"].items())[0][0][4]) -> Gives a letter ('s')
             # So i will call the card_dict, list cast its keys to grab the card_num-nth cards content by index.
-            self.visualize_card_name_lb.configure(
-                text="Empty")
-            self.visualize_card_question_lb.configure(
-                text="Empty")
+            self.visualize_card_name_lb.configure(text="Empty")
+            self.visualize_card_question_lb.configure(text="Empty")
+            self.visualize_card_solution_lb.configure(text="Empty")
 
         elif len(list(box["card_dict"].items())) > 0:
             # As boxes can have a lot of cards i don't wanna iterate over the dict.
@@ -375,10 +379,16 @@ class Application(object):
             # So i will call the card_dict, list cast its keys to grab the card_num-nth cards content by index.
             # Reset card_num to zero.
             self.card_num = 0
-            self.visualize_card_name_lb.configure(
-                text=box["card_dict"][list(box["card_dict"].keys())[self.card_num]]["name"])
-            self.visualize_card_question_lb.configure(
-                text=box["card_dict"][list(box["card_dict"].keys())[self.card_num]]["question"])
+            # Set active card values.
+            card = Card()
+            card.name = box["card_dict"][list(box["card_dict"].keys())[self.card_num]]["name"]
+            card.question = box["card_dict"][list(box["card_dict"].keys())[self.card_num]]["question"]
+            card.solution = box["card_dict"][list(box["card_dict"].keys())[self.card_num]]["solution"]
+            self.active_card = card.__dict__
+            # Visualize card content. Show only name and question. Show solution later.
+            self.visualize_card_name_lb.configure(text=self.active_card["name"])
+            self.visualize_card_question_lb.configure(text=self.active_card["question"])
+            self.visualize_card_solution_lb.configure(text="")
 
         else:
             self.test()
@@ -394,10 +404,9 @@ class Application(object):
             # self.visualize_card_lb.configure(text=list(box["card_dict"].items())[0].question) -> Doesnt exist
             # self.visualize_card_lb.configure(text=list(box["card_dict"].items())[0][0][4]) -> Gives a letter ('s')
             # So i will call the card_dict, list cast its keys to grab the card_num-nth cards content by index.
-            self.visualize_card_name_lb.configure(
-                text="Empty")
-            self.visualize_card_question_lb.configure(
-                text="Empty")
+            self.visualize_card_name_lb.configure(text="Empty")
+            self.visualize_card_question_lb.configure(text="Empty")
+            self.visualize_card_solution_lb.configure(text="Empty")
 
         elif len(list(box["card_dict"].items())) > self.card_num + 1:
             self.card_num += 1
@@ -407,10 +416,16 @@ class Application(object):
             # self.visualize_card_lb.configure(text=list(box["card_dict"].items())[0].question) -> Doesnt exist
             # self.visualize_card_lb.configure(text=list(box["card_dict"].items())[0][0][4]) -> Gives a letter ('s')
             # So i will call the card_dict, list cast its keys to grab the card_num-nth cards content by index.
-            self.visualize_card_name_lb.configure(
-                text=box["card_dict"][list(box["card_dict"].keys())[self.card_num]]["name"])
-            self.visualize_card_question_lb.configure(
-                text=box["card_dict"][list(box["card_dict"].keys())[self.card_num]]["question"])
+            # Set active card values.
+            card = Card()
+            card.name = box["card_dict"][list(box["card_dict"].keys())[self.card_num]]["name"]
+            card.question = box["card_dict"][list(box["card_dict"].keys())[self.card_num]]["question"]
+            card.solution = box["card_dict"][list(box["card_dict"].keys())[self.card_num]]["solution"]
+            self.active_card = card.__dict__
+            # Visualize card content. Show only name and question. Show solution later.
+            self.visualize_card_name_lb.configure(text=self.active_card["name"])
+            self.visualize_card_question_lb.configure(text=self.active_card["question"])
+            self.visualize_card_solution_lb.configure(text="")
 
         else:
             self.test()
@@ -423,6 +438,37 @@ class Application(object):
     def number_of_cards(self):
         return
 
+    # Compare the user input/suggestion and the cards solution.
+    def check_result(self, box, user_input):
+        if len(list(box["card_dict"].items())) == 0:
+            user_input = user_input.get()
+
+            # Compare values.
+            # equal, unequal, error.
+            print(user_input)
+            print(self.active_card["solution"])
+
+            if user_input == self.active_card["solution"]:
+                self.result_equal()
+
+            elif user_input != self.active_card["solution"]:
+                self.result_unequal()
+
+            else:
+                # Error occurred.
+                self.test()
+
+        else:
+            self.pop_up_info_window("Empty box", "400x100", "There is no active card usage.", "Ok")
+
+    # .
+    def result_equal(self):
+        print("eq")
+
+    # .
+    def result_unequal(self):
+        print("neq")
+
     def test(self):
         print("test")
 
@@ -432,7 +478,7 @@ class Application(object):
     def test3(self):
         print("test3")
 
-    #
+    # Input card name and add card to named box.
     def add_card_to_box_window(self):
         # New window
         add_card_to_box_window = Toplevel(self.root)
