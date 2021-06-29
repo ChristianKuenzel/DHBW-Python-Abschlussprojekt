@@ -425,12 +425,13 @@ class Application(object):
             self.skip_button_switch = True
 
         else:
-            self.test()
+            self.error_occurred("400x100", "Error: Invalid card number.")
 
     # Visualize next card if available.
     def next_card(self, box):
         # Check if enough cards exist to continue. Precalculate before increasing the card number value. (-> +1)
         # Hint: len(list(element1)) starts with 1 and list(element1) starts with pos. 0. (-> '>' instead of '>=')
+        # No card exists at all.
         if len(list(box["card_dict"].items())) == 0:
             # As boxes can have a lot of cards i don't wanna iterate over the dict.
             # But to get the cards content by index instead of key-value i need to change the dict.
@@ -442,6 +443,8 @@ class Application(object):
             self.visualize_card_question_lb.configure(text="Empty")
             self.visualize_card_solution_lb.configure(text="Empty")
 
+        # Check if enough cards exist to continue. Precalculate before increasing the card number value. (-> +1)
+        # Enough cards exist.
         elif len(list(box["card_dict"].items())) > self.card_num + 1:
             if self.next_button_switch is True:
                 self.card_num += 1
@@ -467,11 +470,21 @@ class Application(object):
                 self.next_button_switch = False
                 self.skip_button_switch = True
 
-            else:
+            elif self.next_button_switch is False:
+                # Do nothing.
                 pass
 
+            else:
+                self.error_occurred("400x100", "Error: Invalid value.")
+
+        # Check if enough cards exist to continue. Precalculate before increasing the card number value. (-> +1)
+        # No more cards exist. Maximum / End of card-dict is reached.
+        elif len(list(box["card_dict"].items())) == self.card_num + 1 and len(list(box["card_dict"].items())) != 0:
+            pass
+
+        # Negative card number or invalid value.
         else:
-            self.test()
+            self.error_occurred("400x100", "Error: Invalid card number.")
 
     # Skip current question without comparing to solution.
     def skip_question(self):
@@ -482,8 +495,13 @@ class Application(object):
             # Toggle button functionality.
             self.next_button_switch = False
             self.skip_button_switch = True
-        else:
+
+        elif self.skip_button_switch is False:
+            # Do nothing.
             pass
+
+        else:
+            self.error_occurred("400x100", "Error: Invalid value.")
 
     # Return number of cards a box contains.
     def number_of_cards(self):
@@ -495,19 +513,20 @@ class Application(object):
         self.next_button_switch = True
         self.skip_button_switch = False
 
-        if len(list(box["card_dict"].items())) != 0:
+        if len(list(box["card_dict"].items())) > 0:
             user_input = user_input.get()
 
-            # Compare values.
-            # equal, unequal, error.
+            # Compare values. Equal, unequal, error.
+            # Equal result
             if user_input == self.active_card["solution"]:
                 self.result_equal()
 
+            # Unequal result.
             elif user_input != self.active_card["solution"]:
                 self.result_unequal()
 
+            # Error occurred.
             else:
-                # Error occurred.
                 self.test()
 
         else:
@@ -515,22 +534,16 @@ class Application(object):
 
     # .
     def result_equal(self):
+        # User feedback via image.
         self.check_result_img.config(image=self.green_checkmark_img)
-        print("eq")
 
     # .
     def result_unequal(self):
+        # User feedback via image.
         self.check_result_img.config(image=self.red_cross_img)
-        print("neq")
 
     def test(self):
         print("test")
-
-    def test2(self):
-        print("test2")
-
-    def test3(self):
-        print("test3")
 
     # Input card name and add card to named box.
     def add_card_to_box_window(self):
