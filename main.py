@@ -3,12 +3,14 @@
 # Christian Künzel, Matr.Nr.: 3889521, <chriskuenzel@web.de>, https://github.com/ChristianKuenzel
 #
 # Content undergoes the terms of chosen licenses. See GitHub for more:
-# https://github.com/ChristianKuenzel/...
+# https://github.com/ChristianKuenzel/DHBW-Python-Abschlussprojekt
 #
 # ______________________________________________________________________________________________________________________
 # Imports
 from tkinter import *
 from localStoragePy import localStoragePy
+# WARNING: Install Pillow instead of PIL!
+from PIL import ImageTk, Image
 import json
 
 
@@ -20,6 +22,19 @@ class Application(object):
         # Active objects.
         self.active_box = Box().__dict__
         self.active_card = Card().__dict__
+
+        # Switches: De-/Activating functionality.
+        # Toggle next button.
+        # Change status if result got checked: Press Start -> false, Next -> false, Skip -> false, Check -> true.
+        self.next_button_switch = False
+        # Toggle skip button.
+        # Change status if check was used: Press Start -> true, Next -> true, Skip -> true, Check -> False.
+        self.skip_button_switch = True
+        # -> Exact opposite
+        # -> Next Button usable/active if Skip Button not usable/active and other way around.
+        # -> Implementation due to overview and in case of changes in different situations.
+
+        """Callbackfunktionen zur Farbänderung ? disabled -> grau/transparent ?"""
 
         # Create master window.
         self.root = Tk()
@@ -62,6 +77,10 @@ class Application(object):
         self.card_frame_input_fm = Frame(master=self.card_frame_fm, bg='#00FF00')
         self.card_frame_input_fm.place(x=0, y=340, width=460, height=130)
 
+        # Card frame input:
+        self.check_result_image_fm = Frame(master=self.card_frame_input_fm, bg='white')
+        self.check_result_image_fm.place(relx=0.15, rely=0.5, width=40, height=40, anchor=CENTER)
+
         # Labels
         # Main title of GUI
         self.headline_lb = Label(master=self.headline_fm, font=("Courier", 28),
@@ -76,9 +95,19 @@ class Application(object):
         self.visualize_card_question_lb = Label(master=self.card_frame_question_fm, text="Question")
         self.visualize_card_question_lb.place(relx=0.5, rely=0.5, width=300, height=100, anchor=CENTER)
 
-        # Cards solution
+        # Cards solution.
         self.visualize_card_solution_lb = Label(master=self.card_frame_solution_fm, text="Solution")
         self.visualize_card_solution_lb.place(relx=0.5, rely=0.5, width=300, height=100, anchor=CENTER)
+
+        # Result info image.
+        self.green_checkmark_src = Image.open("green_checkmark.png")
+        self.green_checkmark_src = self.green_checkmark_src.resize((40, 40), Image.ANTIALIAS)
+        self.green_checkmark_img = ImageTk.PhotoImage(self.green_checkmark_src)
+        self.red_cross_src = Image.open("red_x.png")
+        self.red_cross_src = self.red_cross_src.resize((40, 40), Image.ANTIALIAS)
+        self.red_cross_img = ImageTk.PhotoImage(self.red_cross_src)
+        self.check_result_img = Label(master=self.check_result_image_fm, image="")
+        self.check_result_img.place(relx=0.5, rely=0.5, anchor=CENTER)
 
         # Input field
         # User response to the given question.
@@ -389,6 +418,11 @@ class Application(object):
             self.visualize_card_name_lb.configure(text=self.active_card["name"])
             self.visualize_card_question_lb.configure(text=self.active_card["question"])
             self.visualize_card_solution_lb.configure(text="")
+            # .
+
+            # Toggle button functionality.
+            self.next_button_switch = False
+            self.skip_button_switch = True
 
         else:
             self.test()
@@ -409,30 +443,47 @@ class Application(object):
             self.visualize_card_solution_lb.configure(text="Empty")
 
         elif len(list(box["card_dict"].items())) > self.card_num + 1:
-            self.card_num += 1
-            # As boxes can have a lot of cards i don't wanna iterate over the dict.
-            # But to get the cards content by index instead of key-value i need to change the dict.
-            # List cast gives me the possibility to use card_num as index, but messes up the  dicts within:
-            # self.visualize_card_lb.configure(text=list(box["card_dict"].items())[0].question) -> Doesnt exist
-            # self.visualize_card_lb.configure(text=list(box["card_dict"].items())[0][0][4]) -> Gives a letter ('s')
-            # So i will call the card_dict, list cast its keys to grab the card_num-nth cards content by index.
-            # Set active card values.
-            card = Card()
-            card.name = box["card_dict"][list(box["card_dict"].keys())[self.card_num]]["name"]
-            card.question = box["card_dict"][list(box["card_dict"].keys())[self.card_num]]["question"]
-            card.solution = box["card_dict"][list(box["card_dict"].keys())[self.card_num]]["solution"]
-            self.active_card = card.__dict__
-            # Visualize card content. Show only name and question. Show solution later.
-            self.visualize_card_name_lb.configure(text=self.active_card["name"])
-            self.visualize_card_question_lb.configure(text=self.active_card["question"])
-            self.visualize_card_solution_lb.configure(text="")
+            if self.next_button_switch is True:
+                self.card_num += 1
+                # As boxes can have a lot of cards i don't wanna iterate over the dict.
+                # But to get the cards content by index instead of key-value i need to change the dict.
+                # List cast gives me the possibility to use card_num as index, but messes up the  dicts within:
+                # self.visualize_card_lb.configure(text=list(box["card_dict"].items())[0].question) -> Doesnt exist
+                # self.visualize_card_lb.configure(text=list(box["card_dict"].items())[0][0][4]) -> Gives a letter ('s')
+                # So i will call the card_dict, list cast its keys to grab the card_num-nth cards content by index.
+                # Set active card values.
+                card = Card()
+                card.name = box["card_dict"][list(box["card_dict"].keys())[self.card_num]]["name"]
+                card.question = box["card_dict"][list(box["card_dict"].keys())[self.card_num]]["question"]
+                card.solution = box["card_dict"][list(box["card_dict"].keys())[self.card_num]]["solution"]
+                self.active_card = card.__dict__
+                # Visualize card content. Show only name and question. Show solution later.
+                self.visualize_card_name_lb.configure(text=self.active_card["name"])
+                self.visualize_card_question_lb.configure(text=self.active_card["question"])
+                self.visualize_card_solution_lb.configure(text="")
+                #.
+
+                # Toggle button functionality.
+                self.next_button_switch = False
+                self.skip_button_switch = True
+
+            else:
+                pass
 
         else:
             self.test()
 
     # Skip current question without comparing to solution.
     def skip_question(self):
-        return
+        if self.skip_button_switch is True:
+            self.next_button_switch = True
+            # Load next card.
+            self.next_card(self.active_box)
+            # Toggle button functionality.
+            self.next_button_switch = False
+            self.skip_button_switch = True
+        else:
+            pass
 
     # Return number of cards a box contains.
     def number_of_cards(self):
@@ -440,14 +491,15 @@ class Application(object):
 
     # Compare the user input/suggestion and the cards solution.
     def check_result(self, box, user_input):
-        if len(list(box["card_dict"].items())) == 0:
+        # Toggle button functionality.
+        self.next_button_switch = True
+        self.skip_button_switch = False
+
+        if len(list(box["card_dict"].items())) != 0:
             user_input = user_input.get()
 
             # Compare values.
             # equal, unequal, error.
-            print(user_input)
-            print(self.active_card["solution"])
-
             if user_input == self.active_card["solution"]:
                 self.result_equal()
 
@@ -463,10 +515,12 @@ class Application(object):
 
     # .
     def result_equal(self):
+        self.check_result_img.config(image=self.green_checkmark_img)
         print("eq")
 
     # .
     def result_unequal(self):
+        self.check_result_img.config(image=self.red_cross_img)
         print("neq")
 
     def test(self):
