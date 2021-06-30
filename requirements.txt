@@ -1,0 +1,2 @@
+localStoragePy==0.2.3
+Pillow==8.2.0
