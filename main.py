@@ -26,6 +26,7 @@ import json
 # Graphical User Interface
 class Application(object):
     def __init__(self):
+        # Global variables.
         # Active objects.
         self.active_box = Box().__dict__
         self.active_card = Card().__dict__
@@ -43,6 +44,7 @@ class Application(object):
 
         """Callbackfunktionen zur Farbänderung ? disabled -> grau/transparent ?"""
 
+        # GUI Implementation.
         # Create master window.
         self.root = Tk()
         self.root.title('Training cards')
@@ -198,6 +200,7 @@ class Application(object):
         self.root.mainloop()
 
     # Functions.
+    # Window functions.
     # Create a new top level window containing all inputs for box creation.
     def create_box_window(self):
         # New window
@@ -248,6 +251,62 @@ class Application(object):
         # Create a new box
         create_box_bt = Button(master=button_fm, text="Create", command=lambda: self.create_new_box(box_name_if))
         create_box_bt.place(relx=0.4, rely=0.5, anchor=CENTER)
+
+        # Cancel box creation
+        cancel_task_bt = Button(master=button_fm, text="Cancel", command=lambda: self.cancel_window(box_window))
+        cancel_task_bt.place(relx=0.6, rely=0.5, anchor=CENTER)
+
+    # Create a new top level window containing all inputs for box creation.
+    def remove_box_window(self):
+        # New window
+        box_window = Toplevel(self.root)
+        box_window.title("Delete box")
+        box_window.geometry("400x600")
+        box_window.configure(bg='#d1bc8a')
+
+        # Frames.
+        foreground_fm = Frame(master=box_window, bg="#B78338")
+        foreground_fm.place(x=20, y=20, width=360, height=250)
+
+        title_fm = Frame(master=foreground_fm, bg="#32435F")
+        title_fm.place(x=0, y=0, width=360, height=50)
+
+        activity_fm = Frame(master=foreground_fm, bg="#B78338", highlightbackground="#32435F", highlightthickness=1)
+        activity_fm.place(x=0, y=50, width=360, height=200)
+
+        task_fm = Frame(master=activity_fm, bg="#EAD6BD")
+        task_fm.place(x=20, y=20, width=320, height=80)
+
+        input_fm = Frame(master=activity_fm, bg="#EAD6BD")
+        input_fm.place(x=20, y=100, width=320, height=60)
+
+        button_fm = Frame(master=activity_fm, bg="#B78338")
+        button_fm.place(x=20, y=160, width=320, height=35)
+
+        # Labels.
+        # Title.
+        title = Label(master=title_fm, text="Delete box")
+        title.place(relx=0.5, rely=0.5, anchor=CENTER)
+
+        # Introduction
+        task = Label(master=task_fm, text="Insert the boxs name below and")
+        task.place(relx=0.5, rely=0.3, anchor=CENTER)
+
+        task2 = Label(master=task_fm, text="click on Delete::")
+        task2.place(relx=0.5, rely=0.7, anchor=CENTER)
+
+        # Input fields.
+        # Name of a box.
+        box_name_if = StringVar()
+        box_name_if.set("Enter box name ...")
+        remove_box_if = Entry(master=input_fm, textvariable=box_name_if)
+        remove_box_if.place(relx=0.5, rely=0.5, anchor=CENTER)
+
+        # Buttons.
+        # Remove new box
+        remove_box_bt = Button(master=button_fm, text="Remove",
+                               command=lambda: remove_box_from_storage(self, box_name_if))
+        remove_box_bt.place(relx=0.4, rely=0.5, anchor=CENTER)
 
         # Cancel box creation
         cancel_task_bt = Button(master=button_fm, text="Cancel", command=lambda: self.cancel_window(box_window))
@@ -321,12 +380,68 @@ class Application(object):
         cancel_task_bt = Button(master=button_fm, text="Cancel", command=lambda: self.cancel_window(card_window))
         cancel_task_bt.place(relx=0.6, rely=0.5, anchor=CENTER)
 
-    # Callback function. Load box for active usage.
-    def load_box_cb(self, *args):
-        # Get list of boxes.
-        lob = get_item_convert_json_to_py("list_of_boxes")
-        # Change active box to chosen box.
-        self.active_box = lob[self.select_box.get()]
+    # Input card name and add card to named box.
+    def add_card_to_box_window(self):
+        # New window
+        add_card_to_box_window = Toplevel(self.root)
+        add_card_to_box_window.title("Add card to box")
+        add_card_to_box_window.geometry("400x600")
+        add_card_to_box_window.configure(bg='#d1bc8a')
+
+        # Frames.
+        foreground_fm = Frame(master=add_card_to_box_window, bg="#B78338")
+        foreground_fm.place(x=20, y=20, width=360, height=310)
+
+        title_fm = Frame(master=foreground_fm, bg="#32435F")
+        title_fm.place(x=0, y=0, width=360, height=50)
+
+        activity_fm = Frame(master=foreground_fm, bg="#B78338", highlightbackground="#32435F", highlightthickness=1)
+        activity_fm.place(x=0, y=50, width=360, height=260)
+
+        task_fm = Frame(master=activity_fm, bg="#EAD6BD")
+        task_fm.place(x=20, y=20, width=320, height=80)
+
+        input_fm = Frame(master=activity_fm, bg="#EAD6BD")
+        input_fm.place(x=20, y=100, width=320, height=100)
+
+        button_fm = Frame(master=activity_fm, bg="#B78338")
+        button_fm.place(x=20, y=200, width=320, height=55)
+
+        # Labels.
+        # Title.
+        title = Label(master=title_fm, text="Add card to box")
+        title.place(relx=0.5, rely=0.5, anchor=CENTER)
+
+        # Introduction.
+        task = Label(master=task_fm, text="Insert the boxs name, the card's name you wanna")
+        task.place(relx=0.5, rely=0.3, anchor=CENTER)
+
+        task2 = Label(master=task_fm, text="add to it and click on 'Add' below:")
+        task2.place(relx=0.5, rely=0.7, anchor=CENTER)
+
+        # Input fields.
+        # Name of a box.
+        box_name_if = StringVar()
+        box_name_if.set("Enter box name ...")
+        get_box_name_if = Entry(master=input_fm, textvariable=box_name_if)
+        get_box_name_if.place(relx=0.5, rely=0.3, anchor=CENTER)
+
+        # Input fields.
+        # Name of a box.
+        card_name_if = StringVar()
+        card_name_if.set("Enter card name ...")
+        get_card_name_if = Entry(master=input_fm, textvariable=card_name_if)
+        get_card_name_if.place(relx=0.5, rely=0.65, anchor=CENTER)
+
+        # Buttons.
+        # Add card to box.
+        add_card_to_box_bt = Button(master=button_fm, text="Add",
+                                    command=lambda: add_card_to_box(self, box_name_if, card_name_if))
+        add_card_to_box_bt.place(relx=0.4, rely=0.5, anchor=CENTER)
+
+        # Cancel box creation
+        cancel_task_bt = Button(master=button_fm, text="Cancel", command=lambda: self.cancel_window(add_card_to_box_window))
+        cancel_task_bt.place(relx=0.6, rely=0.5, anchor=CENTER)
 
     # Safety warning before resetting the storage. All data will be lost.
     def reset_window(self):
@@ -353,77 +468,23 @@ class Application(object):
         abort_process_bt = Button(master=reset_window, text="Abort", command=lambda: self.cancel_window(reset_window))
         abort_process_bt.pack()
 
-    # Create a new top level window containing all inputs for box creation.
-    def remove_box_window(self):
-        # New window
-        box_window = Toplevel(self.root)
-        box_window.title("Delete box")
-        box_window.geometry("400x600")
-        box_window.configure(bg='#d1bc8a')
-
-        # Frames.
-        foreground_fm = Frame(master=box_window, bg="#B78338")
-        foreground_fm.place(x=20, y=20, width=360, height=250)
-
-        title_fm = Frame(master=foreground_fm, bg="#32435F")
-        title_fm.place(x=0, y=0, width=360, height=50)
-
-        activity_fm = Frame(master=foreground_fm, bg="#B78338", highlightbackground="#32435F", highlightthickness=1)
-        activity_fm.place(x=0, y=50, width=360, height=200)
-
-        task_fm = Frame(master=activity_fm, bg="#EAD6BD")
-        task_fm.place(x=20, y=20, width=320, height=80)
-
-        input_fm = Frame(master=activity_fm, bg="#EAD6BD")
-        input_fm.place(x=20, y=100, width=320, height=60)
-
-        button_fm = Frame(master=activity_fm, bg="#B78338")
-        button_fm.place(x=20, y=160, width=320, height=35)
+    # Call a standardized pop up information window.
+    def pop_up_info_window(self, title, resolution, text_msg, text_button):
+        # New window.
+        info_wd = Toplevel(self.root)
+        info_wd.title(title)
+        info_wd.geometry(resolution)
+        info_wd.configure(bg='#d1bc8a')
 
         # Labels.
-        # Title.
-        title = Label(master=title_fm, text="Delete box")
-        title.place(relx=0.5, rely=0.5, anchor=CENTER)
-
-        # Introduction
-        task = Label(master=task_fm, text="Insert the boxs name below and")
-        task.place(relx=0.5, rely=0.3, anchor=CENTER)
-
-        task2 = Label(master=task_fm, text="click on Delete::")
-        task2.place(relx=0.5, rely=0.7, anchor=CENTER)
-
-        # Input fields.
-        # Name of a box.
-        box_name_if = StringVar()
-        box_name_if.set("Enter box name ...")
-        remove_box_if = Entry(master=input_fm, textvariable=box_name_if)
-        remove_box_if.place(relx=0.5, rely=0.5, anchor=CENTER)
+        # User Information
+        info_wd_msg = Label(master=info_wd, text=text_msg)
+        info_wd_msg.place(relx=0.5, rely=0.3, anchor=CENTER)
 
         # Buttons.
-        # Remove new box
-        remove_box_bt = Button(master=button_fm, text="Remove",
-                               command=lambda: remove_box_from_storage(self, box_name_if))
-        remove_box_bt.place(relx=0.4, rely=0.5, anchor=CENTER)
-
-        # Cancel box creation
-        cancel_task_bt = Button(master=button_fm, text="Cancel", command=lambda: self.cancel_window(box_window))
-        cancel_task_bt.place(relx=0.6, rely=0.5, anchor=CENTER)
-
-    # Reset storage and close application.
-    def reset_storage(self):
-        localStorage.clear()
-        self.root.quit()
-        self.root.destroy()
-
-    # Close the window by cancel button.
-    def cancel_window(self, window):
-        try:
-            window.destroy()
-
-        except:
-            # Error response.
-            error_msg = "We are sorry to inform you 'Cancel' caused an error."
-            self.error_occurred("400x80", error_msg)
+        # Delete all data.
+        confirm_bt = Button(master=info_wd, text=text_button, command=lambda: info_wd.destroy())
+        confirm_bt.place(relx=0.5, rely=0.6, anchor=CENTER)
 
     # Error window. Closing application.
     def error_occurred(self, resolution, error_msg):
@@ -442,6 +503,17 @@ class Application(object):
                                       command=lambda: [self.root.destroy(), self.root.quit()])
         close_application_bt.pack()
 
+    # Standardized window closing function. Close the window by cancel button.
+    def cancel_window(self, window):
+        try:
+            window.destroy()
+
+        except:
+            # Error response.
+            error_msg = "We are sorry to inform you 'Cancel' caused an error."
+            self.error_occurred("400x80", error_msg)
+
+    # Creation functions.
     # Create a new box and add itself to storage
     def create_new_box(self, box_name):
         # Create the box object itself.
@@ -452,23 +524,6 @@ class Application(object):
 
         # Store the box.
         add_box_to_storage(self, box.name, box.__dict__)
-
-    def pop_up_info_window(self, title, resolution, text_msg, text_button):
-        # New window.
-        info_wd = Toplevel(self.root)
-        info_wd.title(title)
-        info_wd.geometry(resolution)
-        info_wd.configure(bg='#d1bc8a')
-
-        # Labels.
-        # User Information
-        info_wd_msg = Label(master=info_wd, text=text_msg)
-        info_wd_msg.place(relx=0.5, rely=0.3, anchor=CENTER)
-
-        # Buttons.
-        # Delete all data.
-        confirm_bt = Button(master=info_wd, text=text_button, command=lambda: info_wd.destroy())
-        confirm_bt.place(relx=0.5, rely=0.6, anchor=CENTER)
 
     # Create a new card and add itself into a box.
     def create_new_card(self, card_name, card_question, card_solution):
@@ -484,6 +539,7 @@ class Application(object):
         add_card_to_storage(self, card.name, card.__dict__)
 
     # Start visualizing cards if available.
+    # Process functions.
     def start_exercise(self, box):
         # Check if enough cards exist to start.
         # Hint: len(list(element1)) starts with 1 and list(element1) starts with pos. 0. (-> '>' instead of '>=')
@@ -602,11 +658,6 @@ class Application(object):
         else:
             self.error_occurred("400x100", "Error: Invalid value.")
 
-    # Return number of cards a box contains.
-    """Empty yet."""
-    def number_of_cards(self):
-        return
-
     # Compare the user input/suggestion and the cards solution.
     def check_result(self, box, user_input):
         # Toggle button functionality.
@@ -642,68 +693,23 @@ class Application(object):
         # User feedback via image.
         self.check_result_img.config(image=self.red_cross_img)
 
-    # Input card name and add card to named box.
-    def add_card_to_box_window(self):
-        # New window
-        add_card_to_box_window = Toplevel(self.root)
-        add_card_to_box_window.title("Add card to box")
-        add_card_to_box_window.geometry("400x600")
-        add_card_to_box_window.configure(bg='#d1bc8a')
+    # Callback function. Load box for active usage.
+    def load_box_cb(self, *args):
+        # Get list of boxes.
+        lob = get_item_convert_json_to_py("list_of_boxes")
+        # Change active box to chosen box.
+        self.active_box = lob[self.select_box.get()]
 
-        # Frames.
-        foreground_fm = Frame(master=add_card_to_box_window, bg="#B78338")
-        foreground_fm.place(x=20, y=20, width=360, height=310)
+    # Reset storage and close application.
+    def reset_storage(self):
+        localStorage.clear()
+        self.root.quit()
+        self.root.destroy()
 
-        title_fm = Frame(master=foreground_fm, bg="#32435F")
-        title_fm.place(x=0, y=0, width=360, height=50)
-
-        activity_fm = Frame(master=foreground_fm, bg="#B78338", highlightbackground="#32435F", highlightthickness=1)
-        activity_fm.place(x=0, y=50, width=360, height=260)
-
-        task_fm = Frame(master=activity_fm, bg="#EAD6BD")
-        task_fm.place(x=20, y=20, width=320, height=80)
-
-        input_fm = Frame(master=activity_fm, bg="#EAD6BD")
-        input_fm.place(x=20, y=100, width=320, height=100)
-
-        button_fm = Frame(master=activity_fm, bg="#B78338")
-        button_fm.place(x=20, y=200, width=320, height=55)
-
-        # Labels.
-        # Title.
-        title = Label(master=title_fm, text="Add card to box")
-        title.place(relx=0.5, rely=0.5, anchor=CENTER)
-
-        # Introduction.
-        task = Label(master=task_fm, text="Insert the boxs name, the card's name you wanna")
-        task.place(relx=0.5, rely=0.3, anchor=CENTER)
-
-        task2 = Label(master=task_fm, text="add to it and click on 'Add' below:")
-        task2.place(relx=0.5, rely=0.7, anchor=CENTER)
-
-        # Input fields.
-        # Name of a box.
-        box_name_if = StringVar()
-        box_name_if.set("Enter box name ...")
-        get_box_name_if = Entry(master=input_fm, textvariable=box_name_if)
-        get_box_name_if.place(relx=0.5, rely=0.3, anchor=CENTER)
-
-        # Input fields.
-        # Name of a box.
-        card_name_if = StringVar()
-        card_name_if.set("Enter card name ...")
-        get_card_name_if = Entry(master=input_fm, textvariable=card_name_if)
-        get_card_name_if.place(relx=0.5, rely=0.65, anchor=CENTER)
-
-        # Buttons.
-        # Add card to box.
-        add_card_to_box_bt = Button(master=button_fm, text="Add",
-                                    command=lambda: add_card_to_box(self, box_name_if, card_name_if))
-        add_card_to_box_bt.place(relx=0.4, rely=0.5, anchor=CENTER)
-
-        # Cancel box creation
-        cancel_task_bt = Button(master=button_fm, text="Cancel", command=lambda: self.cancel_window(add_card_to_box_window))
-        cancel_task_bt.place(relx=0.6, rely=0.5, anchor=CENTER)
+    # Return number of cards a box contains.
+    """Empty yet."""
+    def number_of_cards(self):
+        return
 
 
 # Vocabulary Card containing question, solution, tier and attempts.
@@ -911,8 +917,3 @@ if __name__ == '__main__':
 
     # Run application.
     app = Application()
-
-    print(localStorage.getItem("list_of_boxes"))
-    print(localStorage.getItem("list_of_cards"))
-    print(app.active_box)
-    print(app.active_card)
