@@ -15,6 +15,13 @@ import json
 
 
 # ______________________________________________________________________________________________________________________
+# Colours
+# Beige     ->  #d1bc8a
+# Dark Blue ->  #32435F
+# Brown     ->  #B78338
+# white rose->  #EAD6BD
+
+
 # Classes
 # Graphical User Interface
 class Application(object):
@@ -43,38 +50,42 @@ class Application(object):
         self.root.geometry('800x1000')
 
         # Frames -> GUI structure.
-        # Master: Headline and main interaction.
+        # Master: Headline, background and main interaction.
         self.headline_fm = Frame(master=self.root, bg='#d1bc8a')
         self.headline_fm.place(x=0, y=0, width=800, height=95)
 
-        self.main_interaction_fm = Frame(master=self.root, bg='#5e5e5e')
+        self.background_window_fm = Frame(master=self.root, bg='#d1bc8a')
+        self.background_window_fm.place(x=0, y=95, width=800, height=905)
+
+        self.main_interaction_fm = Frame(master=self.root)
         self.main_interaction_fm.place(x=150, y=120, width=500, height=600)
 
         # Main interaction: Select active box and main activity
-        self.select_box_fm = Frame(master=self.main_interaction_fm, bg='#FE2E2E')
+        self.select_box_fm = Frame(master=self.main_interaction_fm, bg='#32435F')
         self.select_box_fm.place(x=0, y=0, width=500, height=60)
 
-        self.activity_fm = Frame(master=self.main_interaction_fm, bg='#AC58FA')
+        self.activity_fm = Frame(master=self.main_interaction_fm, bg='#B78338',
+                                 highlightbackground="#32435F", highlightthickness=2)
         self.activity_fm.place(x=0, y=60, width=500, height=540)
 
         # Activity: All activities beside selecting active box.
-        self.card_frame_fm = Frame(master=self.activity_fm, bg='#2EFEC8')
+        self.card_frame_fm = Frame(master=self.activity_fm)
         self.card_frame_fm.place(x=20, y=20, width=460, height=470)
 
-        self.button_frame_fm = Frame(master=self.activity_fm, bg='#D7DF01')
+        self.button_frame_fm = Frame(master=self.activity_fm, bg='#B78338')
         self.button_frame_fm.place(x=20, y=490, width=460, height=50)
 
         # Card: Title, question, solution and user input.
-        self.card_frame_title_fm = Frame(master=self.card_frame_fm, bg='#FF00BF')
+        self.card_frame_title_fm = Frame(master=self.card_frame_fm, bg='#EAD6BD')
         self.card_frame_title_fm.place(x=0, y=0, width=460, height=60)
 
-        self.card_frame_question_fm = Frame(master=self.card_frame_fm, bg='#0101DF')
+        self.card_frame_question_fm = Frame(master=self.card_frame_fm, bg='#EAD6BD')
         self.card_frame_question_fm.place(x=0, y=60, width=460, height=140)
 
-        self.card_frame_solution_fm = Frame(master=self.card_frame_fm, bg='#FF8000')
+        self.card_frame_solution_fm = Frame(master=self.card_frame_fm, bg='#EAD6BD')
         self.card_frame_solution_fm.place(x=0, y=200, width=460, height=140)
 
-        self.card_frame_input_fm = Frame(master=self.card_frame_fm, bg='#00FF00')
+        self.card_frame_input_fm = Frame(master=self.card_frame_fm, bg='#EAD6BD')
         self.card_frame_input_fm.place(x=0, y=340, width=460, height=130)
 
         # Card frame input:
@@ -165,7 +176,7 @@ class Application(object):
         self.card_menu.add_command(label="Create new", command=self.create_card_window)
         self.card_menu.add_command(label="Add to box", command=self.add_card_to_box_window)
         """self.card_menu.add_command(label="Search")"""
-        self.card_menu.add_checkbutton(label="Remove")
+        """self.card_menu.add_command(label="Remove")"""
         self.menu_bar.add_cascade(label="Card", menu=self.card_menu)
 
         # Options menu: Reset storage.
@@ -188,27 +199,54 @@ class Application(object):
         box_window = Toplevel(self.root)
         box_window.title("Create new box")
         box_window.geometry("400x600")
+        box_window.configure(bg='#d1bc8a')
+
+        # Frames.
+        foreground_fm = Frame(master=box_window, bg="#B78338")
+        foreground_fm.place(x=20, y=20, width=360, height=300)
+
+        title_fm = Frame(master=foreground_fm, bg="#32435F")
+        title_fm.place(x=0, y=0, width=360, height=50)
+
+        activity_fm = Frame(master=foreground_fm, bg="#B78338", highlightbackground="#32435F", highlightthickness=1)
+        activity_fm.place(x=0, y=50, width=360, height=250)
+
+        task_fm = Frame(master=activity_fm, bg="#EAD6BD")
+        task_fm.place(x=20, y=20, width=320, height=80)
+
+        input_fm = Frame(master=activity_fm, bg="#EAD6BD")
+        input_fm.place(x=20, y=100, width=320, height=60)
+
+        button_fm = Frame(master=activity_fm, bg="#B78338")
+        button_fm.place(x=20, y=160, width=320, height=60)
 
         # Labels.
+        # Title.
+        title = Label(master=title_fm, text="Create new box")
+        title.place(relx=0.5, rely=0.5, anchor=CENTER)
+
         # Introduction
-        task = Label(master=box_window, text="Insert the boxs new name below and click on Create:")
-        task.pack()
+        task = Label(master=task_fm, text="Insert the boxs new name below and")
+        task.place(relx=0.5, rely=0.3, anchor=CENTER)
+
+        task2 = Label(master=task_fm, text="click on Create:")
+        task2.place(relx=0.5, rely=0.7, anchor=CENTER)
 
         # Input fields.
         # Name of a box.
         box_name_if = StringVar()
         box_name_if.set("Enter box name ...")
-        create_box_if = Entry(master=box_window, textvariable=box_name_if)
-        create_box_if.pack()
+        create_box_if = Entry(master=input_fm, textvariable=box_name_if)
+        create_box_if.place(relx=0.5, rely=0.5, anchor=CENTER)
 
         # Buttons.
         # Create a new box
-        create_box_bt = Button(master=box_window, text="Create", command=lambda: self.create_new_box(box_name_if))
-        create_box_bt.pack()
+        create_box_bt = Button(master=button_fm, text="Create", command=lambda: self.create_new_box(box_name_if))
+        create_box_bt.place(relx=0.4, rely=0.5, anchor=CENTER)
 
         # Cancel box creation
-        cancel_task_bt = Button(master=box_window, text="Cancel", command=lambda: self.cancel_window(box_window))
-        cancel_task_bt.pack()
+        cancel_task_bt = Button(master=button_fm, text="Cancel", command=lambda: self.cancel_window(box_window))
+        cancel_task_bt.place(relx=0.6, rely=0.5, anchor=CENTER)
 
     # Create a new top level window containing all inputs for card creation.
     def create_card_window(self):
@@ -216,6 +254,7 @@ class Application(object):
         card_window = Toplevel(self.root)
         card_window.title("Create new card")
         card_window.geometry("400x600")
+        card_window.configure(bg='#d1bc8a')
 
         # Labels.
         # Introduction
@@ -289,6 +328,7 @@ class Application(object):
         box_window = Toplevel(self.root)
         box_window.title("Delete box")
         box_window.geometry("400x600")
+        box_window.configure(bg='#d1bc8a')
 
         # Labels.
         # Introduction
