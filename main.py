@@ -261,39 +261,65 @@ class Application(object):
         card_window.geometry("400x600")
         card_window.configure(bg='#d1bc8a')
 
+        # Frames.
+        foreground_fm = Frame(master=card_window, bg="#B78338")
+        foreground_fm.place(x=20, y=20, width=360, height=330)
+
+        title_fm = Frame(master=foreground_fm, bg="#32435F")
+        title_fm.place(x=0, y=0, width=360, height=50)
+
+        activity_fm = Frame(master=foreground_fm, bg="#B78338", highlightbackground="#32435F", highlightthickness=1)
+        activity_fm.place(x=0, y=50, width=360, height=280)
+
+        task_fm = Frame(master=activity_fm, bg="#EAD6BD")
+        task_fm.place(x=20, y=20, width=320, height=80)
+
+        input_fm = Frame(master=activity_fm, bg="#EAD6BD")
+        input_fm.place(x=20, y=100, width=320, height=120)
+
+        button_fm = Frame(master=activity_fm, bg="#B78338")
+        button_fm.place(x=20, y=220, width=320, height=55)
+
         # Labels.
+        # Title.
+        title = Label(master=title_fm, text="Create new card")
+        title.place(relx=0.5, rely=0.5, anchor=CENTER)
+
         # Introduction
-        task = Label(master=card_window, text="Insert the cards name, question and solution below and click on Create:")
-        task.pack()
+        task = Label(master=task_fm, text="Insert the cards name, question and solution")
+        task.place(relx=0.5, rely=0.3, anchor=CENTER)
+
+        task2 = Label(master=task_fm, text="below and click on Create:")
+        task2.place(relx=0.5, rely=0.7, anchor=CENTER)
 
         # Input fields.
         # Name of a card.
         card_name_if = StringVar()
         card_name_if.set("Enter card name ...")
-        create_name_if = Entry(master=card_window, textvariable=card_name_if)
-        create_name_if.pack()
+        create_name_if = Entry(master=input_fm, textvariable=card_name_if)
+        create_name_if.place(relx=0.5, rely=0.2, anchor=CENTER)
 
         # Question of a card.
         card_question_if = StringVar()
         card_question_if.set("Enter question ...")
-        create_question_if = Entry(master=card_window, textvariable=card_question_if)
-        create_question_if.pack()
+        create_question_if = Entry(master=input_fm, textvariable=card_question_if)
+        create_question_if.place(relx=0.5, rely=0.5, anchor=CENTER)
 
         # Solution of the card.
         card_solution_if = StringVar()
         card_solution_if.set("Enter solution ...")
-        create_solution_if = Entry(master=card_window, textvariable=card_solution_if)
-        create_solution_if.pack()
+        create_solution_if = Entry(master=input_fm, textvariable=card_solution_if)
+        create_solution_if.place(relx=0.5, rely=0.8, anchor=CENTER)
 
         # Buttons.
         # Create a new card.
-        create_card_bt = Button(master=card_window, text="Create",
+        create_card_bt = Button(master=button_fm, text="Create",
                                 command=lambda: self.create_new_card(card_name_if, card_question_if, card_solution_if))
-        create_card_bt.pack()
+        create_card_bt.place(relx=0.4, rely=0.5, anchor=CENTER)
 
         # Cancel box creation
-        cancel_task_bt = Button(master=card_window, text="Cancel", command=lambda: self.cancel_window(card_window))
-        cancel_task_bt.pack()
+        cancel_task_bt = Button(master=button_fm, text="Cancel", command=lambda: self.cancel_window(card_window))
+        cancel_task_bt.place(relx=0.6, rely=0.5, anchor=CENTER)
 
     # Callback function. Load box for active usage.
     def load_box_cb(self, *args):
@@ -337,13 +363,13 @@ class Application(object):
 
         # Frames.
         foreground_fm = Frame(master=box_window, bg="#B78338")
-        foreground_fm.place(x=20, y=20, width=360, height=300)
+        foreground_fm.place(x=20, y=20, width=360, height=250)
 
         title_fm = Frame(master=foreground_fm, bg="#32435F")
         title_fm.place(x=0, y=0, width=360, height=50)
 
         activity_fm = Frame(master=foreground_fm, bg="#B78338", highlightbackground="#32435F", highlightthickness=1)
-        activity_fm.place(x=0, y=50, width=360, height=250)
+        activity_fm.place(x=0, y=50, width=360, height=200)
 
         task_fm = Frame(master=activity_fm, bg="#EAD6BD")
         task_fm.place(x=20, y=20, width=320, height=80)
@@ -352,11 +378,11 @@ class Application(object):
         input_fm.place(x=20, y=100, width=320, height=60)
 
         button_fm = Frame(master=activity_fm, bg="#B78338")
-        button_fm.place(x=20, y=160, width=320, height=60)
+        button_fm.place(x=20, y=160, width=320, height=35)
 
         # Labels.
         # Title.
-        title = Label(master=title_fm, text="Create new box")
+        title = Label(master=title_fm, text="Delete box")
         title.place(relx=0.5, rely=0.5, anchor=CENTER)
 
         # Introduction
@@ -622,36 +648,62 @@ class Application(object):
         add_card_to_box_window = Toplevel(self.root)
         add_card_to_box_window.title("Add card to box")
         add_card_to_box_window.geometry("400x600")
+        add_card_to_box_window.configure(bg='#d1bc8a')
+
+        # Frames.
+        foreground_fm = Frame(master=add_card_to_box_window, bg="#B78338")
+        foreground_fm.place(x=20, y=20, width=360, height=310)
+
+        title_fm = Frame(master=foreground_fm, bg="#32435F")
+        title_fm.place(x=0, y=0, width=360, height=50)
+
+        activity_fm = Frame(master=foreground_fm, bg="#B78338", highlightbackground="#32435F", highlightthickness=1)
+        activity_fm.place(x=0, y=50, width=360, height=260)
+
+        task_fm = Frame(master=activity_fm, bg="#EAD6BD")
+        task_fm.place(x=20, y=20, width=320, height=80)
+
+        input_fm = Frame(master=activity_fm, bg="#EAD6BD")
+        input_fm.place(x=20, y=100, width=320, height=100)
+
+        button_fm = Frame(master=activity_fm, bg="#B78338")
+        button_fm.place(x=20, y=200, width=320, height=55)
 
         # Labels.
+        # Title.
+        title = Label(master=title_fm, text="Add card to box")
+        title.place(relx=0.5, rely=0.5, anchor=CENTER)
+
         # Introduction.
-        task = Label(master=add_card_to_box_window, text="Insert the boxs name, the card's name you wanna"
-                                                         " add to it and click on 'Add' below:")
-        task.pack()
+        task = Label(master=task_fm, text="Insert the boxs name, the card's name you wanna")
+        task.place(relx=0.5, rely=0.3, anchor=CENTER)
+
+        task2 = Label(master=task_fm, text="add to it and click on 'Add' below:")
+        task2.place(relx=0.5, rely=0.7, anchor=CENTER)
 
         # Input fields.
         # Name of a box.
         box_name_if = StringVar()
         box_name_if.set("Enter box name ...")
-        get_box_name_if = Entry(master=add_card_to_box_window, textvariable=box_name_if)
-        get_box_name_if.pack()
+        get_box_name_if = Entry(master=input_fm, textvariable=box_name_if)
+        get_box_name_if.place(relx=0.5, rely=0.3, anchor=CENTER)
 
         # Input fields.
         # Name of a box.
         card_name_if = StringVar()
         card_name_if.set("Enter card name ...")
-        get_card_name_if = Entry(master=add_card_to_box_window, textvariable=card_name_if)
-        get_card_name_if.pack()
+        get_card_name_if = Entry(master=input_fm, textvariable=card_name_if)
+        get_card_name_if.place(relx=0.5, rely=0.65, anchor=CENTER)
 
         # Buttons.
         # Add card to box.
-        add_card_to_box_bt = Button(master=add_card_to_box_window, text="Add",
+        add_card_to_box_bt = Button(master=button_fm, text="Add",
                                     command=lambda: add_card_to_box(self, box_name_if, card_name_if))
-        add_card_to_box_bt.pack()
+        add_card_to_box_bt.place(relx=0.4, rely=0.5, anchor=CENTER)
 
         # Cancel box creation
-        cancel_task_bt = Button(master=add_card_to_box_window, text="Cancel", command=lambda: self.cancel_window(add_card_to_box_window))
-        cancel_task_bt.pack()
+        cancel_task_bt = Button(master=button_fm, text="Cancel", command=lambda: self.cancel_window(add_card_to_box_window))
+        cancel_task_bt.place(relx=0.6, rely=0.5, anchor=CENTER)
 
 
 # Vocabulary Card containing question, solution, tier and attempts.
