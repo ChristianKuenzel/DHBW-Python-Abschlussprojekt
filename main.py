@@ -730,23 +730,29 @@ def remove_box_from_storage(app_obj, item_name):
     item_name = item_name.get()
     lob = get_item_convert_json_to_py("list_of_boxes")
 
-    if item_name in lob:
-        # Delete item in dictionary. Dictionary mutates.
-        del lob[item_name]
-        set_item_convert_py_to_json("list_of_boxes", lob)
+    # At least on element needs to remain.
+    if len(lob) > 1:
+        if item_name in lob:
+            # Delete item in dictionary. Dictionary mutates.
+            del lob[item_name]
+            set_item_convert_py_to_json("list_of_boxes", lob)
 
-        # Check if item got deleted correctly.
-        new_lob = get_item_convert_json_to_py("list_of_boxes")
-        if item_name not in new_lob:
-            app_obj.pop_up_info_window("Info Message", "400x100", "Deleting box successfully!", "Ok")
+            # Check if item got deleted correctly.
+            new_lob = get_item_convert_json_to_py("list_of_boxes")
+            if item_name not in new_lob:
+                app_obj.pop_up_info_window("Info Message", "400x100", "Deleting box successfully!", "Ok")
+
+            else:
+                # Failure
+                app_obj.pop_up_info_window("Info Message", "400x100", "WARNING: Deleting box failed!", "Ok")
 
         else:
-            # Failure
-            app_obj.pop_up_info_window("Info Message", "400x100", "WARNING: Deleting box failed!", "Ok")
+            app_obj.pop_up_info_window("Item doesnt exist!", "400x100",
+                                       "The item you are trying to delete doesnt exist.", "Ok")
 
     else:
-        app_obj.pop_up_info_window("Item doesnt exist!", "400x100",
-                                   "The item you are trying to delete doesnt exist.", "Ok")
+        app_obj.pop_up_info_window("Last Element!", "400x100",
+                                   "You need at least one box remaining.", "Ok")
 
 
 # Add new card to storage -> see add_box_to_storage fore more info.
