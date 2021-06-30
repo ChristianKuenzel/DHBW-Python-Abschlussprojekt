@@ -72,8 +72,13 @@ class Application(object):
         self.card_frame_fm = Frame(master=self.activity_fm)
         self.card_frame_fm.place(x=20, y=20, width=460, height=470)
 
+        """
+        Actually: button_frame_fm.place(height=50)
+        Problem: Hides the border frame of the frame 'above'.
+        Fix: height = 45
+        """
         self.button_frame_fm = Frame(master=self.activity_fm, bg='#B78338')
-        self.button_frame_fm.place(x=20, y=490, width=460, height=50)
+        self.button_frame_fm.place(x=20, y=490, width=460, height=45)
 
         # Card: Title, question, solution and user input.
         self.card_frame_title_fm = Frame(master=self.card_frame_fm, bg='#EAD6BD')
@@ -572,6 +577,7 @@ class Application(object):
             self.error_occurred("400x100", "Error: Invalid value.")
 
     # Return number of cards a box contains.
+    """Empty yet."""
     def number_of_cards(self):
         return
 
@@ -609,9 +615,6 @@ class Application(object):
     def result_unequal(self):
         # User feedback via image.
         self.check_result_img.config(image=self.red_cross_img)
-
-    def test(self):
-        print("test")
 
     # Input card name and add card to named box.
     def add_card_to_box_window(self):
@@ -664,12 +667,15 @@ class Card(object):
         self.attempts = 0
         self.success = 0
 
+    """Not in use yet."""
     def increase_attempts(self):
         self.attempts += 1
 
+    """Not in use yet."""
     def reset_attempts(self):
         self.attempts = 0
 
+    """Not in use yet."""
     def increase_tier(self):
         self.tier += 1
 
@@ -681,6 +687,7 @@ class Box(object):
         self.card_dict = dict()
         self.amount_of_cards = 0
 
+    """Not in use yet."""
     def amount_of_cards(self):
         self.amount_of_cards = len(self.card_dict)
         return self.amount_of_cards
