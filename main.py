@@ -330,27 +330,53 @@ class Application(object):
         box_window.geometry("400x600")
         box_window.configure(bg='#d1bc8a')
 
+        # Frames.
+        foreground_fm = Frame(master=box_window, bg="#B78338")
+        foreground_fm.place(x=20, y=20, width=360, height=300)
+
+        title_fm = Frame(master=foreground_fm, bg="#32435F")
+        title_fm.place(x=0, y=0, width=360, height=50)
+
+        activity_fm = Frame(master=foreground_fm, bg="#B78338", highlightbackground="#32435F", highlightthickness=1)
+        activity_fm.place(x=0, y=50, width=360, height=250)
+
+        task_fm = Frame(master=activity_fm, bg="#EAD6BD")
+        task_fm.place(x=20, y=20, width=320, height=80)
+
+        input_fm = Frame(master=activity_fm, bg="#EAD6BD")
+        input_fm.place(x=20, y=100, width=320, height=60)
+
+        button_fm = Frame(master=activity_fm, bg="#B78338")
+        button_fm.place(x=20, y=160, width=320, height=60)
+
         # Labels.
+        # Title.
+        title = Label(master=title_fm, text="Create new box")
+        title.place(relx=0.5, rely=0.5, anchor=CENTER)
+
         # Introduction
-        task = Label(master=box_window, text="Insert the boxs name below and click on Delete:")
-        task.pack()
+        task = Label(master=task_fm, text="Insert the boxs name below and")
+        task.place(relx=0.5, rely=0.3, anchor=CENTER)
+
+        task2 = Label(master=task_fm, text="click on Delete::")
+        task2.place(relx=0.5, rely=0.7, anchor=CENTER)
 
         # Input fields.
         # Name of a box.
         box_name_if = StringVar()
         box_name_if.set("Enter box name ...")
-        remove_box_if = Entry(master=box_window, textvariable=box_name_if)
-        remove_box_if.pack()
+        remove_box_if = Entry(master=input_fm, textvariable=box_name_if)
+        remove_box_if.place(relx=0.5, rely=0.5, anchor=CENTER)
 
         # Buttons.
-        # Create a new box
-        remove_box_bt = Button(master=box_window, text="Remove",
+        # Remove new box
+        remove_box_bt = Button(master=button_fm, text="Remove",
                                command=lambda: remove_box_from_storage(self, box_name_if))
-        remove_box_bt.pack()
+        remove_box_bt.place(relx=0.4, rely=0.5, anchor=CENTER)
 
         # Cancel box creation
-        cancel_task_bt = Button(master=box_window, text="Cancel", command=lambda: self.cancel_window(box_window))
-        cancel_task_bt.pack()
+        cancel_task_bt = Button(master=button_fm, text="Cancel", command=lambda: self.cancel_window(box_window))
+        cancel_task_bt.place(relx=0.6, rely=0.5, anchor=CENTER)
 
     # Reset storage and close application.
     def reset_storage(self):
@@ -374,6 +400,7 @@ class Application(object):
         error_cancel_window = Toplevel(self.root)
         error_cancel_window.title("Error occurred!")
         error_cancel_window.geometry(resolution)
+        error_cancel_window.configure(bg='#d1bc8a')
 
         # Print Message
         error_msg_lb = Label(master=error_cancel_window, text=error_msg)
@@ -400,16 +427,17 @@ class Application(object):
         info_wd = Toplevel(self.root)
         info_wd.title(title)
         info_wd.geometry(resolution)
+        info_wd.configure(bg='#d1bc8a')
 
         # Labels.
         # User Information
         info_wd_msg = Label(master=info_wd, text=text_msg)
-        info_wd_msg.pack()
+        info_wd_msg.place(relx=0.5, rely=0.3, anchor=CENTER)
 
         # Buttons.
         # Delete all data.
         confirm_bt = Button(master=info_wd, text=text_button, command=lambda: info_wd.destroy())
-        confirm_bt.pack()
+        confirm_bt.place(relx=0.5, rely=0.6, anchor=CENTER)
 
     # Create a new card and add itself into a box.
     def create_new_card(self, card_name, card_question, card_solution):
