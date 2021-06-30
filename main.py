@@ -527,7 +527,7 @@ class Application(object):
 
             # Error occurred.
             else:
-                self.test()
+                self.error_occurred("400x100", "Error: Comparison failed.")
 
         else:
             self.pop_up_info_window("Empty box", "400x100", "There is no active card usage.", "Ok")
