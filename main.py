@@ -830,11 +830,26 @@ if __name__ == '__main__':
 
     # Check if list of all boxes exists, otherwise create new dict.
     if localStorage.getItem("list_of_boxes") is None:
+        # Set empty dictionary
         set_item_convert_py_to_json("list_of_boxes", dict())
+        # Get list of boxes as dictionary.
+        tmp_lob = get_item_convert_json_to_py("list_of_boxes")
+        # Add key-value pair.
+        tmp_box = Box()
+        tmp_lob[tmp_box.name] = tmp_box.__dict__
+        # Set dictionary into storage.
+        set_item_convert_py_to_json("list_of_boxes", tmp_lob)
 
     # Check if list of all cards exists, otherwise create new dict.
     if localStorage.getItem("list_of_cards") is None:
         set_item_convert_py_to_json("list_of_cards", dict())
+        # Get list of cards as dictionary.
+        tmp_loc = get_item_convert_json_to_py("list_of_cards")
+        # Add key-value pair.
+        tmp_card = Card()
+        tmp_loc[tmp_card.name] = tmp_card.__dict__
+        # Set dictionary into storage.
+        set_item_convert_py_to_json("list_of_boxes", tmp_loc)
 
     # Run application.
     app = Application()
